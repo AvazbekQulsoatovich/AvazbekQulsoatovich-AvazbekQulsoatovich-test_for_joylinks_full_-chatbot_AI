@@ -1,0 +1,147 @@
+{% extends "base_modern.html" %}
+
+{% block title %}Kurslar - Joylinks IT{% endblock %}
+
+{% block content %}
+<div class="page-content animate-up">
+    <div class="page-header mb-5">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-4">
+            <div>
+                <h1 class="page-title text-gradient display-5"><i class="fas fa-layer-group me-2"></i>Kurslar Boshqaruvi</h1>
+                <p class="page-subtitle text-secondary">O'quv dasturlari va fanlarni boshqarish</p>
+            </div>
+            <a href="{{ url_for('admin_add_course') }}" class="btn-premium-solid" style="background: var(--accent); color: #000; font-weight: 700; border-radius: 12px; padding: 12px 24px; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-plus"></i>Yangi Kurs Qo'shish
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for course in courses %}
+        <div class="col-lg-4 col-md-6">
+            <div class="course-card-premium">
+                <div class="course-card-inner">
+                    <div class="course-header-vibrant" style="background: linear-gradient(135deg, #3b82f6, #818cf8);">
+                        <div class="course-icon-bg"><i class="fas fa-book-open"></i></div>
+                        <div class="course-badge-date">{{ course.created_at.strftime('%d-%m-%Y') }}</div>
+                    </div>
+                    <div class="course-body p-4">
+                        <h4 class="course-title text-white mb-2">{{ course.name }}</h4>
+                        <p class="course-desc text-secondary mb-4">{{ course.description or 'Ushbu kurs uchun tavsif berilmagan.' }}</p>
+                        
+                        <div class="course-footer d-flex justify-content-between align-items-center pt-3 border-top border-opacity-10">
+                            <div class="d-flex gap-2">
+                                <div class="stat-mini">
+                                    <i class="fas fa-users me-1 text-accent"></i>
+                                    <span>Guruhlar: 12</span>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('admin_edit_course', course_id=course.id) }}" class="btn-action-circle blue" title="Tahrirlash">
+                                    <i class="fas fa-pen-to-square"></i>
+                                </a>
+                                <form id="delete-course-{{ course.id }}" method="POST" action="{{ url_for('admin_delete_course', course_id=course.id) }}" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                                    <button type="button" class="btn-action-circle rose" title="O'chirish"
+                                        onclick="confirmDelete('Kursni o\'chirish?', 'Rostdan ham ushbu kursni o\'chirmoqchimisiz?', 'delete-course-{{ course.id }}')">
+                                        <i class="fas fa-trash-can"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+    <div class="content-card-premium mt-5 px-4 py-3 d-flex justify-content-between align-items-center">
+        <div class="text-secondary small">Jami: {{ pagination.total }} ta kurs</div>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                {% if pagination.has_prev %}
+                <li class="page-item"><a class="page-link-premium" href="{{ url_for('admin_courses', page=pagination.prev_num) }}">&laquo;</a></li>
+                {% endif %}
+                {% for page_num in pagination.iter_pages() %}
+                    {% if page_num %}
+                    <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                        <a class="page-link-premium {% if page_num == pagination.page %}active{% endif %}" href="{{ url_for('admin_courses', page=page_num) }}">{{ page_num }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                {% if pagination.has_next %}
+                <li class="page-item"><a class="page-link-premium" href="{{ url_for('admin_courses', page=pagination.next_num) }}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .course-card-premium {
+        perspective: 1000px;
+        transition: var(--transition);
+    }
+    .course-card-inner {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        overflow: hidden;
+        transition: var(--transition);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .course-card-premium:hover .course-card-inner {
+        transform: translateY(-12px);
+        border-color: rgba(255,255,255,0.2);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    .course-header-vibrant {
+        height: 120px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .course-icon-bg {
+        width: 60px; height: 60px; border-radius: 18px;
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; color: #fff;
+    }
+    .course-badge-date {
+        position: absolute; top: 15px; right: 15px;
+        background: rgba(0,0,0,0.3); color: #fff;
+        padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700;
+    }
+
+    .course-title { font-weight: 800; font-size: 1.25rem; }
+    .course-desc { font-size: 0.9rem; line-height: 1.6; min-height: 45px; }
+
+    .stat-mini { font-size: 0.8rem; font-weight: 600; color: #94a3b8; }
+
+    .btn-action-circle {
+        width: 36px; height: 36px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        text-decoration: none; transition: var(--transition);
+        border: none;
+    }
+    .btn-action-circle.blue { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .btn-action-circle.rose { background: rgba(244, 63, 94, 0.1); color: #f43f5e; }
+    .btn-action-circle:hover { transform: scale(1.15); filter: brightness(1.2); }
+
+    .page-link-premium {
+        background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1);
+        padding: 8px 16px; border-radius: 10px; text-decoration: none; margin: 0 4px; transition: var(--transition);
+    }
+    .page-link-premium.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+    .page-link-premium:hover:not(.active) { background: rgba(255,255,255,0.1); color: var(--accent); }
+</style>
+{% endblock %}

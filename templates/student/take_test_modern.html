@@ -1,0 +1,607 @@
+{% extends "base_modern.html" %}
+
+{% block title %}Take Test - {{ test.title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-start">
+        <div>
+            <h1 class="page-title">{{ test.title }}</h1>
+            <p class="page-subtitle">Barcha savollarga javob bering vaqt tugashidan oldin topshirishga harakat qiling</p>
+        </div>
+        <div id="timer-container" class="alert alert-danger"
+            style="background: rgba(13, 17, 23, 0.9); backdrop-filter: blur(15px); border: 2px solid #ef4444; color: #ef4444; border-radius: 20px; padding: 1rem 2rem; transition: all 0.3s ease; box-shadow: 0 10px 40px rgba(239, 68, 68, 0.3); width: fit-content; position: sticky; top: 20px; z-index: 1050; display: flex; align-items: center; gap: 15px;">
+            <i class="fas fa-clock" style="font-size: 1.5rem;"></i>
+            <span style="font-weight: 800; font-size: 2.2rem; letter-spacing: 2px; font-family: 'Outfit', sans-serif;" id="timer">
+                {{ remaining_seconds // 60 }}:{{ "%02d" % (remaining_seconds % 60) }}
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="content-card">
+            <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">
+                <i class="fas fa-clipboard-list me-2" style="color: var(--accent);"></i>Test Ma'lumoti
+            </h5>
+            <div class="test-info mb-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="info-item">
+                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> Muhim Ma'lumot</h5>
+                            <ul class="mb-0">
+                                <li>Barcha savollarga javob bering</li>
+                                <li>Vaqt tugashidan oldin yuborish</li>
+                                <li>Natijalar darhol ko'riniladi</li>
+                                <li>Faqat bir marta yuborish mumkin</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p><strong>Test:</strong> {{ test.title }}</p>
+                    <p><strong>Savollar soni:</strong> {{ questions|length }}</p>
+                    <p><strong>Davomiyligi:</strong> {{ test.duration_minutes }} daqiqa</p>
+                    <p><strong>Tugash vaqti:</strong> {{ test.end_time.strftime('%Y-%m-%d %H:%M') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="content-card">
+            <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">
+                <i class="fas fa-info-circle me-2" style="color: var(--accent);"></i>Muhim Ko'rsatmalar
+            </h5>
+            <div class="instructions-list">
+                <div class="instruction-item">
+                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                    <span>Barcha savollarga javob bering</span>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                    <span>Vaqt tugashidan oldin yuborish</span>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                    <span>Natijalar darhol ko'riniladi</span>
+                </div>
+                <div class="instruction-item">
+                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                    <span>Faqat bir marta yuborish mumkin</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="POST" action="{{ url_for('student_submit_test', test_id=test.id) }}" id="testForm" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <div class="content-card mt-4">
+        <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">
+            <i class="fas fa-question-circle me-2" style="color: var(--accent);"></i>Savollar
+        </h5>
+
+        {% for question in questions %}
+        <div class="question-card mb-4">
+            <div class="question-header">
+                <h6 class="mb-1" style="color: var(--text-primary);">Savol {{ loop.index }}</h6>
+            </div>
+            <div class="question-body">
+                <p class="question-text" style="color: var(--text-secondary); margin-bottom: 1.5rem;">{{
+                    question.question_text }}</p>
+
+                <div class="options-grid">
+                    <div class="option-item">
+                        <input type="radio" name="question_{{ question.id }}" id="question_{{ question.id }}_a"
+                            value="A" required>
+                        <label for="question_{{ question.id }}_a" class="option-label">
+                            <span class="option-letter">A</span>
+                            <span class="option-text">{{ question.option_a }}</span>
+                        </label>
+                    </div>
+                    <div class="option-item">
+                        <input type="radio" name="question_{{ question.id }}" id="question_{{ question.id }}_b"
+                            value="B">
+                        <label for="question_{{ question.id }}_b" class="option-label">
+                            <span class="option-letter">B</span>
+                            <span class="option-text">{{ question.option_b }}</span>
+                        </label>
+                    </div>
+                    <div class="option-item">
+                        <input type="radio" name="question_{{ question.id }}" id="question_{{ question.id }}_c"
+                            value="C">
+                        <label for="question_{{ question.id }}_c" class="option-label">
+                            <span class="option-letter">C</span>
+                            <span class="option-text">{{ question.option_c }}</span>
+                        </label>
+                    </div>
+                    <div class="option-item">
+                        <input type="radio" name="question_{{ question.id }}" id="question_{{ question.id }}_d"
+                            value="D">
+                        <label for="question_{{ question.id }}_d" class="option-label">
+                            <span class="option-letter">D</span>
+                            <span class="option-text">{{ question.option_d }}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if test.has_practical %}
+    <div class="content-card mt-4">
+        <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">
+            <i class="fas fa-tools me-2" style="color: #6f42c1;"></i>Amaliy topshiriq
+        </h5>
+        
+        <div class="practical-task-container p-4" style="background: var(--bg-secondary); border: 2px solid #6f42c1; border-radius: 12px;">
+            {% if test.practical_description %}
+            <div class="mb-4 p-3" style="background: rgba(111,66,193,0.1); border-radius: 8px; border-left: 3px solid #6f42c1;">
+                <h6 style="color: #a78bfa; font-weight: 600;"><i class="fas fa-info-circle me-2"></i>Topshiriq tavsifi:</h6>
+                <p style="color: var(--text-primary); margin: 0;">{{ test.practical_description }}</p>
+            </div>
+            {% endif %}
+            
+            {% if test.practical_file %}
+            <div class="mb-4">
+                <h6 style="color: var(--text-primary);" class="mb-3"><i class="fas fa-file-download me-2"></i>1-qadam: Topshiriqni yuklab oling</h6>
+                <a href="{{ url_for('download_file', filename=test.practical_file) }}" class="btn btn-lg" 
+                   style="background: #6f42c1; color: white; border: none; border-radius: 10px; padding: 0.75rem 2rem; font-weight: 600;">
+                    <i class="fas fa-download me-2"></i>Amaliy topshiriq faylini yuklab olish
+                </a>
+            </div>
+            {% else %}
+            <div class="mb-4 p-3 alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>Amaliy topshiriq fayli hali administrator tomonidan yuklanmagan.
+            </div>
+            {% endif %}
+            
+            <div class="mt-3 p-3" style="background: rgba(40,167,69,0.1); border-radius: 8px; border-left: 3px solid #28a745;">
+                <h6 style="color: #4ade80; font-weight: 600;" class="mb-2"><i class="fas fa-upload me-2"></i>2-qadam: O'z ishingizni yuklang</h6>
+                <label class="form-label" style="color: var(--text-primary);">Bajarlgan amaliy ishingizni yuklang <strong style="color:#ef4444;">(Max 7MB, Majburiy)</strong>:</label>
+                <input type="file" class="form-control mt-2" name="practical_submission" required>
+                <small class="text-muted mt-2 d-block"><i class="fas fa-info-circle me-1"></i>Ruxsat etilgan turlar: PDF, DOCX, XLSX, PPTX, ZIP, RAR</small>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="content-card mt-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <span class="text-muted">Savollar: {{ questions|length }} | Vaqt: {{ test.duration_minutes }}
+                    daqiqa</span>
+            </div>
+            <div>
+                <button type="button" class="btn btn-outline-secondary" onclick="confirmSubmit()">
+                    <i class="fas fa-paper-plane me-2"></i>TESTNI TOPSHIRISH
+                </button>
+                <button type="submit" class="btn-primary-custom" id="submitBtn" style="display: none;">
+                    <i class="fas fa-check-circle me-2"></i>HA, TOPSHIRAMAN
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="submitModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background: var(--bg-card); border: 1px solid var(--border);">
+            <div class="modal-header" style="border-bottom: 1px solid var(--border);">
+                <h5 class="modal-title" style="color: var(--text-primary);">Testni Topshirishni Tasdiqlash</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    style="color: var(--text-secondary);"></button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--text-primary); font-weight: 600;">Testni topshirishga ishonchingizmi?</p>
+                <div class="warning-list">
+                    <div class="warning-item">
+                        <i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i>
+                        <span>Javoblaringizdan keyin o'zgartirib bo'lmaysiz</span>
+                    </div>
+                    <div class="warning-item">
+                        <i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i>
+                        <span>Natijalar darhol ko'riniladi</span>
+                    </div>
+                    <div class="warning-item">
+                        <i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i>
+                        <span>Faqat bir marta yuborish mumkin</span>
+                    </div>
+                </div>
+                <p class="mt-3" style="color: var(--text-primary); font-weight: 600;">Barcha savollarga javob beringdan
+                    oldin o'tkazib chiqing.</p>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid var(--border);">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+                <button type="button" class="btn-primary-custom"
+                    onclick="document.getElementById('submitBtn').click(); document.getElementById('submitModal').classList.remove('show'); document.getElementById('submitModal').style.display = 'none';">Testni
+                    Topshirish</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .test-info {
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .info-item:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    .info-value {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    .instructions-list {
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+    }
+
+    .instruction-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 0;
+        color: var(--text-secondary);
+    }
+
+    .instruction-item i {
+        margin-right: 0.75rem;
+    }
+
+    .question-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .question-card:hover {
+        border-color: var(--accent);
+    }
+
+    .question-header h6 {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .question-text {
+        line-height: 1.6;
+    }
+
+    .options-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+
+    .option-item {
+        background: var(--bg-card);
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .option-item:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(26, 95, 79, 0.2);
+    }
+
+    .option-item input[type="radio"] {
+        display: none;
+    }
+
+    /* Tanlangan variant uchun */
+    .option-item input[type="radio"]:checked~.option-label {
+        background: linear-gradient(135deg, rgba(26, 95, 79, 0.2), rgba(26, 95, 79, 0.1));
+        border: 2px solid var(--accent);
+    }
+
+    .option-item input[type="radio"]:checked~.option-label .option-letter {
+        background: var(--accent);
+        box-shadow: 0 0 15px rgba(26, 95, 79, 0.5);
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .option-label {
+        display: flex;
+        align-items: flex-start;
+        padding: 1.25rem;
+        cursor: pointer;
+        color: var(--text-primary);
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .option-letter {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        border: 2px solid var(--border);
+        border-radius: 50%;
+        font-weight: 700;
+        font-size: 1rem;
+        margin-right: 1rem;
+        flex-shrink: 0;
+        transition: all 0.3s ease;
+    }
+
+    .option-text {
+        line-height: 1.6;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    /* Submit button yanada ko'zga tashlanishi */
+    .btn-primary-custom {
+        background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+        color: white !important;
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 20px rgba(26, 95, 79, 0.4);
+        animation: glow 2s ease-in-out infinite;
+    }
+
+    .btn-primary-custom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(26, 95, 79, 0.6);
+        color: white !important;
+    }
+
+    @keyframes glow {
+
+        0%,
+        100% {
+            box-shadow: 0 4px 20px rgba(26, 95, 79, 0.4);
+        }
+
+        50% {
+            box-shadow: 0 4px 30px rgba(26, 95, 79, 0.7);
+        }
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.1);
+        }
+    }
+
+    .btn-outline-secondary {
+        border: 2px solid var(--accent);
+        color: var(--accent);
+        background: transparent;
+        border-radius: 12px;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-secondary:hover {
+        background: var(--accent);
+        color: var(--bg-primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(26, 95, 79, 0.3);
+    }
+
+    .modal {
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+        border-radius: 12px;
+    }
+
+    .warning-list {
+        margin: 1rem 0;
+    }
+
+    .warning-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0;
+        color: var(--text-secondary);
+    }
+
+    .warning-item i {
+        margin-right: 0.5rem;
+    }
+</style>
+
+<script>
+    let timeLeft = Number("{{ remaining_seconds }}");
+    const timerElement = document.getElementById('timer');
+
+    const timerInterval = setInterval(updateTimer, 1000);
+
+    // Audio Context for beeps
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playBeep(frequency, duration, volume) {
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        oscillator.type = 'sine'; // Sine is cleaner but we'll increase volume
+        oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+        
+        // Linear ramp for smoother but louder sound
+        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + 0.01);
+        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + duration);
+    }
+
+    function updateTimer() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerElement.textContent = minutes.toString() + ':' + seconds.toString().padStart(2, '0');
+
+        // Visual and Audio alerts
+        const container = document.getElementById('timer-container');
+        
+        // Constant mechanical tick sound (every second)
+        if (timeLeft > 0) {
+            if (timeLeft <= 60) {
+                // Last minute: A bit more distinct
+                playBeep(1000, 0.02, 0.15); // Short high click
+                container.style.animation = 'pulse 1s ease-in-out infinite';
+            } else {
+                // Normal ticking: Soft mechanical click
+                playBeep(800, 0.01, 0.08); // Very short soft click
+            }
+        }
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            playBeep(440, 1.5, 0.3); 
+            alert('Vaqt tugadi! Test avtomatik ravishda topshiriladi.');
+            document.getElementById('testForm').submit();
+        }
+
+        timeLeft--;
+    }
+
+    function confirmSubmit() {
+        const modal = new bootstrap.Modal(document.getElementById('submitModal'));
+        modal.show();
+    }
+
+    // Warn before leaving page
+    window.addEventListener('beforeunload', function (e) {
+        e.preventDefault();
+        e.returnValue = '';
+    });
+
+    // Auto-save functionality (optional enhancement)
+    document.addEventListener('DOMContentLoaded', function () {
+        const options = document.querySelectorAll('input[type="radio"]');
+        options.forEach(function (option) {
+            option.addEventListener('change', function () {
+                console.log('Answer changed:', this.name, this.value);
+            });
+        });
+    });
+
+    // File validation for practical submission
+    function validateFile(input, alertBoxId) {
+        const MAX_SIZE = 7 * 1024 * 1024; // 7MB
+        const BLOCKED_EXTS = ['apk', 'exe', 'bat', 'sh', 'cmd', 'msi', 'com', 'scr'];
+        const file = input.files[0];
+        let alertBox = document.getElementById(alertBoxId);
+        
+        if (!alertBox) {
+            alertBox = document.createElement('div');
+            alertBox.id = alertBoxId;
+            alertBox.style.marginTop = '8px';
+            alertBox.style.borderRadius = '8px';
+            alertBox.style.padding = '10px 14px';
+            alertBox.style.fontWeight = '500';
+            input.parentNode.insertBefore(alertBox, input.nextSibling);
+        }
+        
+        if (!file) { alertBox.style.display='none'; return true; }
+        
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (BLOCKED_EXTS.includes(ext)) {
+            alertBox.style.display = 'block';
+            alertBox.style.background = '#7f1d1d';
+            alertBox.style.color = '#fca5a5';
+            alertBox.innerHTML = '🚫 Bu fayl turi ruxsat etilmagan (.apk, .exe va shunga o\'xshash fayllar yuklab bo\'lmaydi)!';
+            input.value = '';
+            return false;
+        }
+        
+        if (file.size > MAX_SIZE) {
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+            alertBox.style.display = 'block';
+            alertBox.style.background = '#7c2d12';
+            alertBox.style.color = '#fdba74';
+            alertBox.innerHTML = `⚠️ Faylingiz juda katta! Hozirgi hajm: <strong>${sizeMB} MB</strong>. Maksimal ruxsat etilgan: <strong>7 MB</strong>. Iltimos, faylni kichikroq qilib qayta yuklang.`;
+            input.value = '';
+            return false;
+        }
+        
+        alertBox.style.display = 'block';
+        alertBox.style.background = '#14532d';
+        alertBox.style.color = '#86efac';
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        alertBox.innerHTML = `✅ Fayl qabul qilindi: <strong>${file.name}</strong> (${sizeMB} MB)`;
+        return true;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const practicalInput = document.querySelector('input[name="practical_submission"]');
+        if (practicalInput) {
+            practicalInput.addEventListener('change', function() {
+                validateFile(this, 'practical-file-alert');
+            });
+        }
+
+        // Intercept form submit to validate before sending
+        const form = document.getElementById('testForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const practicalInput = form.querySelector('input[name="practical_submission"]');
+                if (practicalInput && practicalInput.files.length > 0) {
+                    if (!validateFile(practicalInput, 'practical-file-alert')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return false;
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

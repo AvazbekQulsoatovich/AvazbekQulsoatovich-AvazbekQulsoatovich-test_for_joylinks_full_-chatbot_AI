@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Add Group - Joylinks IT Test{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Add New Group</h1>
+            <p class="page-subtitle">Create a new student group for your course.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('teacher_groups') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Groups
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-plus me-2"></i>Group Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" class="needs-validation" novalidate>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <label for="name" class="form-label fw-semibold">
+                                Group Name <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="name" name="name" required
+                                   placeholder="e.g., Morning Class, Advanced Group, etc.">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Enter a descriptive name for the student group
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-user-tie me-3 fa-2x"></i>
+                                    <div>
+                                        <strong>Teacher:</strong> {{ current_user.full_name }}<br>
+                                        <strong>Course:</strong> {{ current_user.teacher_profile.course.name }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <a href="{{ url_for('teacher_groups') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Create Group
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Help & Guidelines</h5>
+            </div>
+            <div class="card-body">
+                <div class="guidelines-section">
+                    <h6 class="fw-semibold mb-3">
+                        <i class="fas fa-lightbulb me-2 text-warning"></i>Group Guidelines
+                    </h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle me-2 text-success"></i>
+                            Use descriptive group names
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle me-2 text-success"></i>
+                            Consider class schedules
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle me-2 text-success"></i>
+                            Keep group sizes manageable
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle me-2 text-success"></i>
+                            Plan for student assignments
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="next-steps-section mt-4">
+                    <h6 class="fw-semibold mb-3">
+                        <i class="fas fa-arrow-right me-2 text-primary"></i>Next Steps
+                    </h6>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        After creating a group, you can add students, create tests, and monitor progress.
+                    </div>
+                    
+                    <div class="mt-3">
+                        <strong>What you can do:</strong>
+                        <ul class="list-unstyled mt-2">
+                            <li class="mb-1">
+                                <i class="fas fa-user-plus me-2 text-primary"></i>
+                                Add students to the group
+                            </li>
+                            <li class="mb-1">
+                                <i class="fas fa-clipboard-list me-2 text-primary"></i>
+                                Create tests for the group
+                            </li>
+                            <li class="mb-1">
+                                <i class="fas fa-chart-line me-2 text-primary"></i>
+                                Monitor student progress
+                            </li>
+                            <li class="mb-1">
+                                <i class="fas fa-download me-2 text-primary"></i>
+                                Export results
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+}
+
+.form-control-lg {
+    border-radius: 8px;
+    border: 2px solid var(--gray-200);
+    transition: all 0.3s ease;
+}
+
+.form-control-lg:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+    transform: translateY(-1px);
+}
+
+.form-label {
+    color: var(--gray-700);
+    font-weight: 600;
+}
+
+.guidelines-section .list-unstyled li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--gray-100);
+    transition: all 0.3s ease;
+}
+
+.guidelines-section .list-unstyled li:hover {
+    background: var(--gray-50);
+    padding-left: 8px;
+    border-radius: 4px;
+}
+
+.alert-info {
+    background: rgba(33, 150, 243, 0.1);
+    border: 1px solid rgba(33, 150, 243, 0.3);
+    color: var(--primary-color);
+}
+
+.alert-info .fa-user-tie {
+    color: var(--primary-color);
+    opacity: 0.7;
+}
+</style>
+
+<script>
+// Form validation
+(function() {
+    'use strict';
+    var forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms).forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Joylinks IT Test{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Admin Dashboard</h1>
+            <p class="page-subtitle">Welcome back! Here's an overview of your education platform.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin_analytics') }}" class="btn btn-primary">
+                <i class="fas fa-chart-pie me-2"></i>View Analytics
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-lg-6">
+        <div class="stats-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="mb-1">{{ total_students }}</h3>
+                    <p class="mb-0">Total Students</p>
+                </div>
+                <div class="stats-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-lg-6">
+        <div class="stats-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="mb-1">{{ total_teachers }}</h3>
+                    <p class="mb-0">Total Teachers</p>
+                </div>
+                <div class="stats-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-lg-6">
+        <div class="stats-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="mb-1">{{ total_courses }}</h3>
+                    <p class="mb-0">Total Courses</p>
+                </div>
+                <div class="stats-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-lg-6">
+        <div class="stats-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="mb-1">{{ total_tests }}</h3>
+                    <p class="mb-0">Total Tests</p>
+                </div>
+                <div class="stats-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-rocket me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <a href="{{ url_for('admin_add_course') }}" class="btn btn-primary w-100">
+                            <i class="fas fa-plus-circle me-2"></i>Add New Course
+                        </a>
+                    </div>
+                    <div class="col-12">
+                        <a href="{{ url_for('admin_add_teacher') }}" class="btn btn-success w-100">
+                            <i class="fas fa-user-plus me-2"></i>Add New Teacher
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url_for('admin_courses') }}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-book-open me-2"></i>Manage Courses
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url_for('admin_teachers') }}" class="btn btn-outline-success w-100">
+                            <i class="fas fa-users me-2"></i>Manage Teachers
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>System Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                            <span class="fw-semibold">System Status</span>
+                            <span class="badge bg-success">Active</span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                            <span class="fw-semibold">Current Date</span>
+                            <span class="text-muted">{{ current_time.strftime('%Y-%m-%d') }}</span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                            <span class="fw-semibold">Total Users</span>
+                            <span class="badge bg-primary">{{ total_students + total_teachers + 1 }}</span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                            <span class="fw-semibold">Database</span>
+                            <span class="text-muted">SQLite</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stats-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.stats-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+.btn-outline-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.btn-outline-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.bg-light {
+    background: var(--gray-50) !important;
+    border: 1px solid var(--gray-200);
+    transition: all 0.3s ease;
+}
+
+.bg-light:hover {
+    background: var(--gray-100) !important;
+    transform: translateY(-1px);
+}
+</style>
+{% endblock %}

@@ -1,0 +1,358 @@
+{% extends "base_modern.html" %}
+
+{% block title %}Mening Dashboardim - Joylinks IT{% endblock %}
+
+{% block content %}
+<div class="animate-up">
+    <!-- Header Section -->
+    <div class="page-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="page-title text-gradient"><i class="fas fa-rocket me-2"></i>Mening Dashboardim</h1>
+                <p class="page-subtitle text-white-50">Xush kelibsiz, {{ current_user.full_name }}! Bugun yangi marralarni zabt etamiz. ✨</p>
+            </div>
+            <div class="d-flex gap-3">
+                <div class="current-date-card">
+                    <i class="fas fa-calendar-alt me-2 text-accent"></i>
+                    <span>{{ current_time.strftime('%d-%B, %Y') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card-vibrant st-emerald">
+                <div class="st-content">
+                    <p class="st-label">Tugallangan</p>
+                    <h3 class="st-value">{{ results|length }} <small>test</small></h3>
+                </div>
+                <div class="st-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="st-decoration"></div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card-vibrant st-blue">
+                <div class="st-content">
+                    <p class="st-label">Mavjud Testlar</p>
+                    <h3 class="st-value">{{ available_tests|length }} <small>faol</small></h3>
+                </div>
+                <div class="st-icon"><i class="fas fa-clipboard-list"></i></div>
+                <div class="st-decoration"></div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card-vibrant st-purple">
+                <div class="st-content">
+                    <p class="st-label">O'rtacha Ball</p>
+                    <h3 class="st-value">{{ "%.1f"|format(average_score or 0) }}%</h3>
+                </div>
+                <div class="st-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="st-decoration"></div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card-vibrant st-amber">
+                <div class="st-content">
+                    <p class="st-label">Mening Guruhim</p>
+                    <h3 class="st-value" style="font-size: 1.2rem;">{{ student.group.name if student.group else 'Guruh yo\'q' }}</h3>
+                </div>
+                <div class="st-icon"><i class="fas fa-users"></i></div>
+                <div class="st-decoration"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="row g-4">
+        <!-- Chart Section -->
+        <div class="col-lg-12">
+            <div class="glass-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="section-title"><i class="fas fa-chart-area me-2 text-accent"></i>Oylik Progress (Diagramma)</h5>
+                </div>
+                <div class="chart-wrapper" style="height: 350px;">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Left Column: Tests List -->
+        <div class="col-xl-8">
+            <div class="glass-card p-4 h-100">
+                <h5 class="section-title mb-4"><i class="fas fa-tasks me-2 text-blue"></i>Barcha Testlar</h5>
+                <div class="test-grid">
+                    {% set all_group_tests = student.group.tests if student.group else [] %}
+                    {% for test in all_group_tests %}
+                    {% if test.is_active %}
+                    <div class="test-item-premium">
+                        <div class="test-left">
+                            <div class="test-icon-box {% if test.id in completed_test_ids %}done{% else %}pending{% endif %}">
+                                <i class="fas {% if test.id in completed_test_ids %}fa-check-double{% else %}fa-play-circle{% endif %}"></i>
+                            </div>
+                            <div class="test-info">
+                                <h6 class="test-title">{{ test.title }}</h6>
+                                <div class="test-meta">
+                                    <span class="me-3"><i class="far fa-clock me-1"></i>{{ test.duration_minutes }} daq</span>
+                                    <span class="me-3"><i class="far fa-calendar-alt me-1"></i>{{ test.end_time.strftime('%d.%m %H:%M') }}</span>
+                                    {% if test.has_practical %}
+                                        <span class="badge bg-soft-info text-info" style="font-size: 0.65rem;"><i class="fas fa-file-alt me-1"></i>Amaliy</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="test-right">
+                            {% if test.id in completed_test_ids %}
+                                {% set result = results_map.get(test.id) %}
+                                <div class="d-flex flex-column align-items-end">
+                                    {% if test.has_practical and result and result.practical_score is not none %}
+                                        <span class="badge-vibrant success mb-1">Baholandi</span>
+                                        <small class="text-accent fw-bold" style="font-size: 0.75rem;">Amaliy: {{ result.practical_score }}/100</small>
+                                    {% else %}
+                                        <span class="badge-vibrant success mb-1">Topshirildi</span>
+                                        <small class="text-white-50" style="font-size: 0.75rem;">Natija: {{ result.percentage|round }}%</small>
+                                    {% endif %}
+                                </div>
+                            {% elif test.id in timed_out_test_ids or current_time > test.end_time %}
+                                <span class="badge-vibrant danger">Ulgurmadiz</span>
+                            {% elif test.id in started_test_ids %}
+                                <a href="{{ url_for('student_take_test', test_id=test.id) }}" class="btn-neon-emerald">Davom ettirish</a>
+                            {% else %}
+                                <a href="{{ url_for('student_take_test', test_id=test.id) }}" class="btn-neon-emerald">Boshlash</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Recent Results -->
+        <div class="col-xl-4">
+            <div class="glass-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="section-title mb-0"><i class="fas fa-history me-2 text-purple"></i>So'nggi Natijalar</h5>
+                    <a href="{{ url_for('student_results') }}" class="view-all-link">Hammasi <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+                <div class="recent-results-list">
+                    {% for result, test in results[:5] %}
+                    <div class="result-mini-card">
+                        <div class="r-info">
+                            <span class="r-name">{{ test.title }}</span>
+                            <span class="r-date">{{ result.submitted_at.strftime('%d.%m.%Y') }}</span>
+                        </div>
+                        <div class="r-score {% if result.percentage >= 80 %}high{% elif result.percentage >= 60 %}mid{% else %}low{% endif %}">
+                            {{ result.percentage|round }}%
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Vibrant Styles */
+    .text-gradient {
+        background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+    }
+
+    .glass-card {
+        background: rgba(17, 22, 32, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        transition: var(--transition);
+    }
+    .glass-card:hover { transform: translateY(-5px); border-color: rgba(255, 255, 255, 0.15); }
+
+    .section-title { color: #fff; font-weight: 700; font-size: 1.1rem; letter-spacing: 0.5px; }
+
+    /* Vibrant Stats Cards */
+    .stats-card-vibrant {
+        position: relative;
+        padding: 1.5rem;
+        border-radius: 24px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 120px;
+        transition: var(--transition);
+        border: 1px solid rgba(255,255,255,0.1);
+        z-index: 1;
+    }
+    .stats-card-vibrant:hover { transform: translateY(-8px) scale(1.02); }
+
+    .st-content { position: relative; z-index: 2; }
+    .st-label { color: rgba(255,255,255,0.8); font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; text-transform: uppercase; }
+    .st-value { color: #fff; font-size: 1.8rem; font-weight: 800; margin: 0; }
+    .st-value small { font-size: 0.9rem; font-weight: 500; opacity: 0.7; }
+
+    .st-icon {
+        font-size: 3rem;
+        opacity: 0.2;
+        position: absolute;
+        right: -10px;
+        bottom: -10px;
+        transform: rotate(-15deg);
+        transition: var(--transition);
+    }
+    .stats-card-vibrant:hover .st-icon { transform: rotate(0deg) scale(1.2); opacity: 0.4; }
+
+    .st-emerald { background: linear-gradient(135deg, #064e3b 0%, #059669 100%); box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3); border-color: rgba(16, 185, 129, 0.3); }
+    .st-blue { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3); border-color: rgba(59, 130, 246, 0.3); }
+    .st-purple { background: linear-gradient(135deg, #4c1d95 0%, #8b5cf6 100%); box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3); border-color: rgba(139, 92, 246, 0.3); }
+    .st-amber { background: linear-gradient(135deg, #78350f 0%, #d97706 100%); box-shadow: 0 10px 25px rgba(217, 119, 6, 0.3); border-color: rgba(245, 158, 11, 0.3); }
+
+    /* Test Items */
+    .test-item-premium {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 18px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        transition: var(--transition);
+    }
+    .test-item-premium:hover { background: rgba(255, 255, 255, 0.06); transform: translateX(5px); }
+
+    .test-left { display: flex; align-items: center; gap: 15px; }
+    .test-icon-box { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .test-icon-box.done { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .test-icon-box.pending { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+
+    .test-title { color: #fff; font-weight: 700; margin: 0 0 5px; font-size: 1rem; }
+    .test-meta { color: rgba(255,255,255,0.4); font-size: 0.8rem; font-weight: 500; }
+
+    .btn-neon-emerald {
+        background: var(--accent);
+        color: #000;
+        padding: 8px 20px;
+        border-radius: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: var(--transition);
+        font-size: 0.9rem;
+    }
+    .btn-neon-emerald:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--accent); }
+
+    .badge-vibrant { padding: 6px 15px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+    .badge-vibrant.success { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+    .badge-vibrant.danger { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+
+    /* Recent Results Mini Cards */
+    .result-mini-card {
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 16px;
+        padding: 12px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        border: 1px solid rgba(255,255,255,0.03);
+    }
+    .r-name { display: block; color: #fff; font-weight: 600; font-size: 0.9rem; }
+    .r-date { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
+    .r-score { font-weight: 800; font-size: 1rem; }
+    .r-score.high { color: #10b981; }
+    .r-score.mid { color: #f59e0b; }
+    .r-score.low { color: #ef4444; }
+
+    .view-all-link { color: var(--accent); text-decoration: none; font-size: 0.85rem; font-weight: 700; }
+    .view-all-link:hover { text-decoration: underline; }
+
+    .current-date-card {
+        background: rgba(255,255,255,0.05);
+        padding: 10px 20px;
+        border-radius: 15px;
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+</style>
+
+<!-- Chart Data -->
+<div id="chart-config" 
+     data-months='{{ months|tojson|safe }}' 
+     data-averages='{{ monthly_averages|tojson|safe }}' 
+     style="display: none;">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const configEl = document.getElementById('chart-config');
+        if (!configEl) return;
+
+        const months = JSON.parse(configEl.getAttribute('data-months'));
+        const averages = JSON.parse(configEl.getAttribute('data-averages'));
+
+        const ctx = document.getElementById('monthlyChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(0, 245, 160, 0.4)');
+        gradient.addColorStop(1, 'rgba(0, 245, 160, 0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'O\'rtacha ball',
+                    data: averages,
+                    borderColor: '#00f5a0',
+                    borderWidth: 4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#00f5a0',
+                    pointBorderWidth: 3,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    fill: true,
+                    backgroundColor: gradient,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#111827',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+                        ticks: { color: 'rgba(255, 255, 255, 0.4)', font: { size: 11 } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: 'rgba(255, 255, 255, 0.4)', font: { size: 11 } }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

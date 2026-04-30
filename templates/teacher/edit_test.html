@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Test - Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Edit Test</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('teacher_tests') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Tests
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-edit"></i> Edit Test Information</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" id="testForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Test Title *</label>
+                        <input type="text" class="form-control" id="title" name="title" value="{{ test.title }}" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="group_id" class="form-label">Group *</label>
+                        <select class="form-select" id="group_id" name="group_id" required>
+                            {% for group in groups %}
+                            <option value="{{ group.id }}" {% if group.id == test.group_id %}selected{% endif %}>{{ group.name }} ({{ group.students|length }} students)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="start_time" class="form-label">Start Time *</label>
+                        <input type="datetime-local" class="form-control" id="start_time" name="start_time" value="{{ test.start_time.strftime('%Y-%m-%dT%H:%M') }}" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="end_time" class="form-label">End Time *</label>
+                        <input type="datetime-local" class="form-control" id="end_time" name="end_time" value="{{ test.end_time.strftime('%Y-%m-%dT%H:%M') }}" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="duration_minutes" class="form-label">Duration (minutes) *</label>
+                        <input type="number" class="form-control" id="duration_minutes" name="duration_minutes" value="{{ test.duration_minutes }}" min="1" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="question_count" class="form-label">Number of Questions *</label>
+                <input type="number" class="form-control" id="question_count" name="question_count" min="1" max="50" value="{{ test.questions|length }}" required>
+                <div class="form-text">Select how many questions this test will have (1-50).</div>
+            </div>
+            
+            <div id="questionsContainer"></div>
+            
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> <strong>Test ID:</strong> {{ test.id }}<br>
+                <strong>Current Questions:</strong> {{ test.questions|length }}<br>
+                <strong>Results Submitted:</strong> {{ test.results|length }}
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{{ url_for('teacher_tests') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Update Test
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Warning</h5>
+    </div>
+    <div class="card-body">
+        <p><strong>Important:</strong></p>
+        <ul>
+            <li>Editing questions will affect all future test attempts</li>
+            <li>Previous results remain unchanged</li>
+            <li>Changing time may affect student access</li>
+            <li>Consider informing students of major changes</li>
+        </ul>
+        
+        <div class="mt-3">
+            <form method="POST" action="{{ url_for('teacher_delete_test', test_id=test.id) }}" onsubmit="return confirm('Are you absolutely sure you want to delete this test? All student results will be permanently lost. This action cannot be undone.')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Delete Test
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load existing questions
+const existingQuestions = {{ test.questions|length }};
+
+document.getElementById('question_count').addEventListener('change', function() {
+    const count = parseInt(this.value);
+    const container = document.getElementById('questionsContainer');
+    container.innerHTML = '';
+    
+    for (let i = 1; i <= count; i++) {
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'card mb-3';
+        questionDiv.innerHTML = `
+            <div class="card-header">
+                <h6 class="mb-0">Question ${i}</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Question Text *</label>
+                    <textarea class="form-control" name="question_${i}_text" rows="2" required></textarea>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label class="form-label">Option A *</label>
+                            <input type="text" class="form-control" name="question_${i}_a" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Option B *</label>
+                            <input type="text" class="form-control" name="question_${i}_b" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label class="form-label">Option C *</label>
+                            <input type="text" class="form-control" name="question_${i}_c" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Option D *</label>
+                            <input type="text" class="form-control" name="question_${i}_d" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Correct Answer *</label>
+                    <select class="form-select" name="question_${i}_correct" required>
+                        <option value="">Select correct answer</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                </div>
+            </div>
+        `;
+        container.appendChild(questionDiv);
+    }
+});
+
+// Generate initial questions
+document.getElementById('question_count').dispatchEvent(new Event('change'));
+</script>
+{% endblock %}

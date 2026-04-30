@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Take Test - Education Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{{ test.title }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="alert alert-warning mb-0">
+            <i class="fas fa-clock"></i> Time Remaining: <span id="timer">{{ test.duration_minutes }}:00</span>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-clipboard-list"></i> Test Instructions</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <p><strong>Test:</strong> {{ test.title }}</p>
+                <p><strong>Total Questions:</strong> {{ questions|length }}</p>
+                <p><strong>Duration:</strong> {{ test.duration_minutes }} minutes</p>
+                <p><strong>End Time:</strong> {{ test.end_time.strftime('%Y-%m-%d %H:%M') }}</p>
+            </div>
+            <div class="col-md-4">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> <strong>Important:</strong>
+                    <ul class="mb-0">
+                        <li>Answer all questions</li>
+                        <li>Submit before time expires</li>
+                        <li>Results shown immediately</li>
+                        <li>Only one submission allowed</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="POST" action="{{ url_for('student_submit_test', test_id=test.id) }}" id="testForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-question-circle"></i> Questions</h5>
+        </div>
+        <div class="card-body">
+            {% for question in questions %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">Question {{ loop.index }}</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">{{ question.question_text }}</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="question_{{ question.id }}_a" value="A" required>
+                                <label class="form-check-label" for="question_{{ question.id }}_a">
+                                    <strong>A.</strong> {{ question.option_a }}
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="question_{{ question.id }}_b" value="B">
+                                <label class="form-check-label" for="question_{{ question.id }}_b">
+                                    <strong>B.</strong> {{ question.option_b }}
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="question_{{ question.id }}_c" value="C">
+                                <label class="form-check-label" for="question_{{ question.id }}_c">
+                                    <strong>C.</strong> {{ question.option_c }}
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="question_{{ question.id }}_d" value="D">
+                                <label class="form-check-label" for="question_{{ question.id }}_d">
+                                    <strong>D.</strong> {{ question.option_d }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <span class="text-muted">Questions: {{ questions|length }} | Time: {{ test.duration_minutes }} minutes</span>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-secondary me-2" onclick="confirmSubmit()">
+                        <i class="fas fa-save"></i> Submit Test
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">
+                        <i class="fas fa-check"></i> Confirm Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="submitModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Test Submission</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to submit your test?</p>
+                <ul>
+                    <li>You cannot change your answers after submission</li>
+                    <li>Results will be shown immediately</li>
+                    <li>Only one submission is allowed</li>
+                </ul>
+                <p><strong>Make sure you have answered all questions before submitting.</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('submitBtn').click(); document.getElementById('submitModal').classList.remove('show'); document.getElementById('submitModal').style.display = 'none';">Submit Test</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let timeLeft = {{ test.duration_minutes * 60 }};
+const timerElement = document.getElementById('timer');
+
+function updateTimer() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    
+    if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        alert('Time is up! Submitting your test automatically.');
+        document.getElementById('testForm').submit();
+    }
+    
+    timeLeft--;
+}
+
+const timerInterval = setInterval(updateTimer, 1000);
+
+function confirmSubmit() {
+    const modal = new bootstrap.Modal(document.getElementById('submitModal'));
+    modal.show();
+}
+
+// Warn before leaving page
+window.addEventListener('beforeunload', function(e) {
+    e.preventDefault();
+    e.returnValue = '';
+});
+</script>
+{% endblock %}

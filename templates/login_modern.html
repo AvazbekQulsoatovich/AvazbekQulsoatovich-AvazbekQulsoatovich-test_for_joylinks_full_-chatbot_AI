@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirish - Joylinks IT</title>
+    
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #05070a;
+            --accent: #00f5a0;
+            --accent-blue: #3b82f6;
+            --glass: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-primary);
+            background: linear-gradient(-45deg, #05070a, #0a1118, #050c14, #0d1117);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Ambient Glow */
+        .glow-sphere {
+            position: absolute;
+            width: 500px; height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 245, 160, 0.1) 0%, transparent 70%);
+            filter: blur(80px);
+            z-index: 1;
+            pointer-events: none;
+        }
+        .gs-1 { top: -100px; left: -100px; }
+        .gs-2 { bottom: -100px; right: -100px; background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%); }
+
+        .login-card {
+            width: 100%;
+            max-width: 450px;
+            background: rgba(17, 22, 32, 0.7);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 35px;
+            padding: 50px 40px;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255,255,255,0.02);
+            animation: slideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo-box {
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-blue));
+            border-radius: 24px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem; color: #000;
+            box-shadow: 0 20px 40px rgba(0, 245, 160, 0.3);
+            transform: rotate(-5deg);
+            transition: var(--transition);
+        }
+        .login-card:hover .logo-box { transform: rotate(0deg) scale(1.05); }
+
+        .title { font-weight: 800; font-size: 2.2rem; color: #fff; margin: 0; letter-spacing: -1px; }
+        .subtitle { color: rgba(255,255,255,0.5); font-size: 1rem; margin-top: 8px; font-weight: 500; }
+
+        .form-group { position: relative; margin-bottom: 24px; }
+
+        .form-control-premium {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            padding: 18px 24px;
+            color: #fff !important;
+            width: 100%;
+            transition: var(--transition);
+            font-size: 1rem;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .form-control-premium::placeholder { color: rgba(255,255,255,0.3); }
+        .form-control-premium:focus {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 25px rgba(0, 245, 160, 0.15), inset 0 2px 4px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Fix select arrow color */
+        select.form-control-premium {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 20px center;
+            background-size: 18px;
+        }
+        select.form-control-premium option {
+            background: #0d1117;
+            color: #fff;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 22px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.4);
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 5;
+            padding: 10px;
+        }
+        .password-toggle:hover { color: var(--accent); }
+
+        .btn-kirish {
+            background: linear-gradient(135deg, var(--accent), #059669);
+            color: #000;
+            border: none;
+            border-radius: 20px;
+            padding: 18px;
+            width: 100%;
+            font-weight: 800;
+            font-size: 1.15rem;
+            margin-top: 15px;
+            transition: var(--transition);
+            cursor: pointer;
+            box-shadow: 0 15px 30px rgba(0, 245, 160, 0.2);
+        }
+        .btn-kirish:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 245, 160, 0.4);
+            filter: brightness(1.1);
+        }
+        .btn-kirish:active { transform: translateY(-1px); }
+
+        .alert-premium {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            border-radius: 16px;
+            padding: 15px 20px;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: shake 0.4s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Floating Particles */
+        .particle {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.3;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="login-header">
+            <div class="logo-box"><i class="fas fa-graduation-cap"></i></div>
+            <h1 class="title">Joylinks IT</h1>
+            <p class="subtitle">Boshqaruv tizimiga xush kelibsiz</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert-premium">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            
+            <div class="form-group">
+                <select name="branch_id" class="form-control-premium" style="cursor: pointer;">
+                    <option value="" selected disabled>Filialni tanlang</option>
+                    <option value="0">Tizim Boshqaruvi (Super Admin)</option>
+                    {% for branch in branches %}
+                    <option value="{{ branch.id }}">{{ branch.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="username" class="form-control-premium" placeholder="Login" required autocomplete="username">
+            </div>
+
+            <div class="form-group">
+                <input type="password" name="password" id="passwordInput" class="form-control-premium" placeholder="Parol" required autocomplete="current-password">
+                <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+            </div>
+
+            <button type="submit" class="btn-kirish">Kirish</button>
+        </form>
+    </div>
+
+    <script>
+        // Password visibility toggle
+        const togglePassword = document.querySelector('#togglePassword');
+        const passwordInput = document.querySelector('#passwordInput');
+
+        togglePassword.addEventListener('click', function (e) {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        // Background Particles
+        for(let i=0; i<30; i++) {
+            let particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.top = Math.random() * 100 + 'vh';
+            particle.style.opacity = Math.random();
+            document.body.appendChild(particle);
+        }
+    </script>
+</body>
+</html>

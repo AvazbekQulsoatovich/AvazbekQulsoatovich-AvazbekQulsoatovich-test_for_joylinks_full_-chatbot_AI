@@ -1,0 +1,202 @@
+{% extends "base_modern.html" %}
+
+{% block title %}Guruh Qo'shish - Joylinks IT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Guruh Qo'shish</h1>
+            <p class="page-subtitle">Yangi guruh yaratish va o'qituvchi tayinlash</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin_groups') }}" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left me-2"></i>Orqaga
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="content-card">
+            {% if not teachers %}
+            <div class="text-center py-4">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: var(--accent);"></i>
+                <h4>O'qituvchilar mavjud emas</h4>
+                <p class="text-secondary">Guruh qo'shishdan oldin kamida bitta o'qituvchi yaratishingiz kerak.</p>
+                <a href="{{ url_for('admin_add_teacher') }}" class="btn-primary-custom">
+                    <i class="fas fa-user-plus me-2"></i>O'qituvchi qo'shish
+                </a>
+            </div>
+            {% else %}
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="fas fa-users me-2"></i>Guruh nomi
+                        </label>
+                        <input type="text" class="form-control" name="name" required
+                            placeholder="Masalan: Web Development-101">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="fas fa-user-tie me-2"></i>O'qituvchi
+                        </label>
+                        <select class="form-control" name="teacher_id" required>
+                            <option value="">O'qituvchini tanlang</option>
+                            {% for teacher, user, course in teachers %}
+                            <option value="{{ teacher.id }}">
+                                {{ user.full_name }} ({{ course.name }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn-primary-custom">
+                        <i class="fas fa-save me-2"></i>Guruhni saqlash
+                    </button>
+                    <a href="{{ url_for('admin_groups') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Bekor qilish
+                    </a>
+                </div>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-label {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .form-control {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        background: var(--bg-card);
+        border-color: var(--accent);
+        color: var(--text-primary);
+        box-shadow: 0 0 0 0.2rem rgba(26, 95, 79, 0.25);
+    }
+
+    .form-control::placeholder {
+        color: var(--text-secondary);
+    }
+
+    .btn-primary-custom {
+        background: var(--accent);
+        color: var(--bg-primary);
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        font-weight: 500;
+    }
+
+    .btn-primary-custom:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+        color: var(--bg-primary);
+    }
+
+    .btn-outline-light {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: transparent;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        font-weight: 500;
+    }
+
+    .btn-outline-light:hover {
+        background: var(--accent);
+        color: var(--bg-primary);
+        transform: translateY(-2px);
+    }
+
+    .btn-outline-secondary {
+        border-color: var(--border);
+        color: var(--text-secondary);
+        background: transparent;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        font-weight: 500;
+    }
+
+    .btn-outline-secondary:hover {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        transform: translateY(-2px);
+    }
+
+    .content-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 2rem;
+        backdrop-filter: blur(20px);
+    }
+
+    .content-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        animation: shimmer 2s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+
+        0%,
+        100% {
+            transform: translateX(-100%);
+        }
+
+        50% {
+            transform: translateX(100%);
+        }
+    }
+
+    .content-card:hover {
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        border-color: var(--accent);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const card = document.querySelector('.content-card');
+        card.style.animation = 'fadeIn 0.5s ease-in';
+    });
+</script>
+{% endblock %}

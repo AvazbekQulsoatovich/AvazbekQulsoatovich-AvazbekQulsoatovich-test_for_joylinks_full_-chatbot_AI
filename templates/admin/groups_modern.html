@@ -1,0 +1,305 @@
+{% extends "base_modern.html" %}
+
+{% block title %}Guruhlar - Joylinks IT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Guruhlar</h1>
+            <p class="page-subtitle">Barcha guruhlarni boshqarish</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin_add_group') }}" class="btn-primary-custom">
+                <i class="fas fa-plus me-2"></i>Guruh Qo'shish
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="content-card">
+    {% if groups %}
+    <div class="table-responsive">
+        <table class="table table-dark table-hover">
+            <thead>
+                <tr>
+                    <th><i class="fas fa-users me-2"></i>Guruh</th>
+                    <th><i class="fas fa-user-tie me-2"></i>O'qituvchi</th>
+                    <th><i class="fas fa-graduation-cap me-2"></i>Kurs</th>
+                    <th><i class="fas fa-user-graduate me-2"></i>O'quvchilar</th>
+                    <th><i class="fas fa-sliders-h me-2"></i>Amallar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for group, teacher, user, course in groups %}
+                <tr class="table-row-hover">
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="group-avatar me-3">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div>
+                                <strong><a href="{{ url_for('admin_view_group', group_id=group.id) }}" style="color: var(--text-primary); text-decoration: none; transition: color 0.3s;" class="group-link-hover">{{ group.name }}</a></strong>
+                                <br>
+                                <small class="text-secondary">ID: {{ group.id }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-primary">{{ user.full_name }}</span>
+                    </td>
+                    <td>
+                        <span class="badge bg-success">{{ course.name }}</span>
+                    </td>
+                    <td>
+                        <span class="badge bg-info">{{ group.students|length }} o'quvchi</span>
+                    </td>
+                    <td>
+                        <div class="btn-group gap-2" role="group">
+                            <a href="{{ url_for('admin_view_group', group_id=group.id) }}" class="btn btn-sm btn-outline-light" title="Guruh tafsilotlari">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ url_for('admin_edit_group', group_id=group.id) }}" class="btn btn-sm btn-outline-light" title="Tahrirlash">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form id="delete-group-{{ group.id }}" method="POST" action="{{ url_for('admin_delete_group', group_id=group.id) }}" class="d-inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmDelete('Guruhni o\'chirish?', 'Rostdan ham ushbu guruhni o\'chirmoqchimisiz? Barcha o\'quvchilar va testlar o\'chib ketadi!', 'delete-group-{{ group.id }}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="pagination-container d-flex justify-content-between align-items-center mt-4">
+        <div class="pagination-info text-secondary small">
+            Jami: {{ pagination.total }} ta guruh | Sahifa: {{ pagination.page }}/{{ pagination.pages }}
+        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0">
+                {% if pagination.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin_groups', page=pagination.prev_num) }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('admin_groups', page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if pagination.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin_groups', page=pagination.next_num) }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-users fa-3x mb-3" style="color: var(--text-secondary);"></i>
+        <h5 style="color: var(--text-primary);">Guruhlar yo'q</h5>
+        <p class="text-muted">Birinchi guruhni yarating</p>
+        <a href="{{ url_for('admin_add_group') }}" class="btn-primary-custom">
+            <i class="fas fa-plus me-2"></i>Birinchi Guruhni Yaratish
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.group-avatar {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg-primary);
+    animation: pulse 2s ease-in-out infinite;
+    box-shadow: 0 4px 20px rgba(26, 95, 79, 0.3);
+    font-size: 1.1rem;
+    border: 2px solid rgba(26, 95, 79, 0.2);
+}
+
+.group-link-hover:hover {
+    color: var(--accent) !important;
+}
+
+.table {
+    color: var(--text-primary);
+}
+
+.table-dark {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+}
+
+.table-dark th {
+    background: var(--bg-secondary);
+    border-color: var(--border);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.table-dark td {
+    border-color: var(--border);
+    color: var(--text-primary);
+}
+
+.table-row-hover {
+    transition: all 0.3s ease;
+}
+
+.table-row-hover:hover {
+    background: var(--bg-secondary);
+    transform: translateX(4px);
+    box-shadow: 0 4px 20px rgba(26, 95, 79, 0.2);
+}
+
+.badge {
+    padding: 0.5rem 0.75rem;
+    font-weight: 500;
+}
+
+/* Pagination Styles */
+.pagination-container {
+    border-top: 1px solid var(--border);
+    padding-top: 1.5rem;
+}
+
+.pagination .page-link {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    margin: 0 2px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.pagination .page-item.active .page-link {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg-primary);
+}
+
+.pagination .page-link:hover {
+    background: var(--accent-hover);
+    color: var(--bg-primary);
+    border-color: var(--accent-hover);
+}
+
+.pagination .page-item.disabled .page-link {
+    background: var(--bg-card);
+    border-color: var(--border);
+    color: var(--text-secondary);
+    opacity: 0.5;
+}
+
+.btn-primary-custom {
+    background: var(--accent);
+    color: var(--bg-primary);
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    font-weight: 500;
+}
+
+.btn-primary-custom:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    color: var(--bg-primary);
+}
+
+.btn-outline-light {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: transparent;
+    border-radius: 6px;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-light:hover {
+    background: var(--accent);
+    color: var(--bg-primary);
+    transform: translateY(-2px);
+}
+
+.btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+    background: transparent;
+    border-radius: 6px;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-danger:hover {
+    background: #dc3545;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.content-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    backdrop-filter: blur(20px);
+}
+
+.content-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    animation: shimmer 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { transform: translateX(-100%); }
+    50% { transform: translateX(100%); }
+}
+
+.content-card:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    border-color: var(--accent);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const rows = document.querySelectorAll('.table-row-hover');
+    rows.forEach((row, index) => {
+        row.style.animation = `fadeIn 0.5s ease-in ${index * 0.1}s`;
+    });
+});
+</script>
+{% endblock %}

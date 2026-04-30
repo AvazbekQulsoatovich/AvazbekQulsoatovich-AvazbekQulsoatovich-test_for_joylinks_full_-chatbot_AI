@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Groups - Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Groups Management</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('teacher_add_group') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New Group
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-users"></i> Your Groups</h5>
+    </div>
+    <div class="card-body">
+        {% if groups %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Group Name</th>
+                        <th>Students Count</th>
+                        <th>Tests Count</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for group in groups %}
+                    <tr>
+                        <td>{{ group.id }}</td>
+                        <td><strong>{{ group.name }}</strong></td>
+                        <td><span class="badge bg-primary">{{ group.students|length }} students</span></td>
+                        <td><span class="badge bg-info">{{ group.tests|length }} tests</span></td>
+                        <td>
+                            <a href="{{ url_for('teacher_edit_group', group_id=group.id) }}" class="btn btn-sm btn-warning btn-action">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <form method="POST" action="{{ url_for('teacher_delete_group', group_id=group.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this group? This will also delete all students and tests in this group.')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" class="btn btn-sm btn-danger btn-action">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+            <h5>No groups found</h5>
+            <p class="text-muted">Start by creating your first group.</p>
+            <a href="{{ url_for('teacher_add_group') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add First Group
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

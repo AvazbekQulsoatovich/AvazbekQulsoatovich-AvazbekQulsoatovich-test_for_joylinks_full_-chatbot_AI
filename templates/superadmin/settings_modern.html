@@ -1,0 +1,183 @@
+{% extends "base_modern.html" %}
+
+{% block title %}Tizim Sozlamalari - Joylinks IT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Tizim Sozlamalari</h1>
+            <p class="page-subtitle">Profil sozlamalari va tizim ma'lumotlari</p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Profil Ma'lumotlari -->
+    <div class="col-lg-6">
+        <div class="content-card">
+            <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">
+                <i class="fas fa-user-circle me-2" style="color: var(--accent);"></i>Profil Ma'lumotlari
+            </h5>
+            <form action="{{ url_for('superadmin_settings') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="update_profile">
+                
+                <div class="mb-3">
+                    <label class="form-label text-secondary small fw-bold">Login</label>
+                    <input type="text" class="form-control bg-dark text-light border-secondary" 
+                           value="{{ current_user.username }}" disabled>
+                    <small class="text-muted">Login o'zgartirib bo'lmaydi</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-secondary small fw-bold">To'liq Ism</label>
+                    <input type="text" name="full_name" class="form-control bg-dark text-light border-secondary" 
+                           value="{{ current_user.full_name }}" required minlength="2">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-secondary small fw-bold">Rol</label>
+                    <input type="text" class="form-control bg-dark text-light border-secondary" 
+                           value="Super Admin" disabled>
+                </div>
+                
+                <button type="submit" class="btn-primary-custom">
+                    <i class="fas fa-save me-2"></i>Yangilash
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Parol O'zgartirish -->
+    <div class="col-lg-6">
+        <div class="content-card">
+            <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">
+                <i class="fas fa-key me-2" style="color: var(--accent);"></i>Parol O'zgartirish
+            </h5>
+            <form action="{{ url_for('superadmin_settings') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="change_password">
+                
+                <div class="mb-3">
+                    <label class="form-label text-secondary small fw-bold">Eski Parol</label>
+                    <input type="password" name="old_password" class="form-control bg-dark text-light border-secondary" 
+                           required placeholder="Joriy parolingiz">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-secondary small fw-bold">Yangi Parol</label>
+                    <input type="password" name="new_password" class="form-control bg-dark text-light border-secondary" 
+                           required minlength="4" placeholder="Kamida 4 belgi">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-secondary small fw-bold">Yangi Parolni Tasdiqlash</label>
+                    <input type="password" name="confirm_password" class="form-control bg-dark text-light border-secondary" 
+                           required minlength="4" placeholder="Parolni qaytadan kiriting">
+                </div>
+                
+                <button type="submit" class="btn-primary-custom">
+                    <i class="fas fa-lock me-2"></i>Parolni O'zgartirish
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Tizim Statistikasi -->
+<div class="content-card mt-4">
+    <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">
+        <i class="fas fa-chart-bar me-2" style="color: var(--accent);"></i>Tizim Statistikasi
+    </h5>
+    <div class="row g-3">
+        <div class="col-md-4 col-lg-2">
+            <div class="stat-mini-card">
+                <div class="stat-icon"><i class="fas fa-building"></i></div>
+                <div class="stat-value">{{ stats.total_branches }}</div>
+                <div class="stat-label">Filiallar</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <div class="stat-mini-card">
+                <div class="stat-icon"><i class="fas fa-user-shield"></i></div>
+                <div class="stat-value">{{ stats.total_admins }}</div>
+                <div class="stat-label">Adminlar</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <div class="stat-mini-card">
+                <div class="stat-icon"><i class="fas fa-user-tie"></i></div>
+                <div class="stat-value">{{ stats.total_teachers }}</div>
+                <div class="stat-label">O'qituvchilar</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <div class="stat-mini-card">
+                <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+                <div class="stat-value">{{ stats.total_students }}</div>
+                <div class="stat-label">O'quvchilar</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <div class="stat-mini-card">
+                <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
+                <div class="stat-value">{{ stats.total_tests }}</div>
+                <div class="stat-label">Testlar</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <div class="stat-mini-card">
+                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-value">{{ stats.total_results }}</div>
+                <div class="stat-label">Natijalar</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus {
+        background: var(--bg-secondary);
+        border-color: var(--accent);
+        box-shadow: 0 0 0 0.25rem rgba(26, 95, 79, 0.25);
+        color: white;
+    }
+    .stat-mini-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.25rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    .stat-mini-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--accent);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.75rem;
+        color: var(--bg-primary);
+    }
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+</style>
+{% endblock %}

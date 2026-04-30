@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Add Course - Joylinks IT Test{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Add New Course</h1>
+            <p class="page-subtitle">Create a new course for your education platform.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('admin_courses') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Courses
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-plus me-2"></i>Course Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" class="needs-validation" novalidate>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <label for="name" class="form-label fw-semibold">
+                                Course Name <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="name" name="name" required>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Enter the full name of the course
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <label for="description" class="form-label fw-semibold">
+                                Description
+                            </label>
+                            <textarea class="form-control" id="description" name="description" rows="5" 
+                                      placeholder="Provide a detailed description of the course content and objectives..."></textarea>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Include learning objectives and course content details
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <a href="{{ url_for('admin_courses') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Save Course
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Help & Guidelines</h5>
+            </div>
+            <div class="card-body">
+                <div class="guidelines-section">
+                    <h6 class="fw-semibold mb-3">
+                        <i class="fas fa-lightbulb me-2 text-warning"></i>Course Guidelines
+                    </h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle me-2 text-success"></i>
+                            Use descriptive course names
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle me-2 text-success"></i>
+                            Include learning objectives in description
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle me-2 text-success"></i>
+                            Keep descriptions concise but informative
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle me-2 text-success"></i>
+                            Consider the target audience
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="next-steps-section mt-4">
+                    <h6 class="fw-semibold mb-3">
+                        <i class="fas fa-arrow-right me-2 text-primary"></i>Next Steps
+                    </h6>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        After creating a course, you can assign teachers to it from the Teachers section.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+}
+
+.form-control-lg {
+    border-radius: 8px;
+    border: 2px solid var(--gray-200);
+    transition: all 0.3s ease;
+}
+
+.form-control-lg:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+    transform: translateY(-1px);
+}
+
+.form-label {
+    color: var(--gray-700);
+    font-weight: 600;
+}
+
+.guidelines-section .list-unstyled li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--gray-100);
+    transition: all 0.3s ease;
+}
+
+.guidelines-section .list-unstyled li:hover {
+    background: var(--gray-50);
+    padding-left: 8px;
+    border-radius: 4px;
+}
+
+.alert-info {
+    background: rgba(33, 150, 243, 0.1);
+    border: 1px solid rgba(33, 150, 243, 0.3);
+    color: var(--primary-color);
+}
+</style>
+
+<script>
+// Form validation
+(function() {
+    'use strict';
+    var forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms).forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+})();
+</script>
+{% endblock %}

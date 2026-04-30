@@ -1,0 +1,121 @@
+{% extends "base_modern.html" %}
+
+{% block title %}Teacher Tests - Joylinks IT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Tests Management</h1>
+            <p class="page-subtitle">Create and manage tests for your students</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('teacher_add_test') }}" class="btn-primary-custom">
+                <i class="fas fa-plus me-2"></i>Create Test
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for test, group in tests %}
+    <div class="col-lg-6">
+        <div class="content-card">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h5 class="mb-1" style="color: var(--text-primary);">{{ test.title }}</h5>
+                    <p class="mb-0" style="color: var(--text-secondary); font-size: 0.875rem;">
+                        <i class="fas fa-users me-1"></i>{{ group.name }}
+                    </p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('teacher_edit_test', test_id=test.id) }}" class="btn btn-sm btn-outline-light">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <form method="POST" action="{{ url_for('teacher_delete_test', test_id=test.id) }}" class="d-inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-clock me-2" style="color: var(--accent);"></i>
+                        <div>
+                            <small class="text-muted">Duration</small>
+                            <div class="fw-semibold">{{ test.duration_minutes }} min</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-calendar me-2" style="color: var(--accent);"></i>
+                        <div>
+                            <small class="text-muted">Start</small>
+                            <div class="fw-semibold">{{ test.start_time.strftime('%Y-%m-%d %H:%M') }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-calendar-check me-2" style="color: var(--accent);"></i>
+                        <div>
+                            <small class="text-muted">End</small>
+                            <div class="fw-semibold">{{ test.end_time.strftime('%Y-%m-%d %H:%M') }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                        {% set status = 'Active' if current_time >= test.start_time and current_time <= test.end_time else ('Upcoming' if current_time < test.start_time else 'Expired') %}
+                        {% set status_color = '#10b981' if status == 'Active' else ('#f59e0b' if status == 'Upcoming' else '#ef4444') %}
+                        <i class="fas fa-info-circle me-2" style="color: {{ status_color }};"></i>
+                        <div>
+                            <small class="text-muted">Status</small>
+                            <div class="fw-semibold" style="color: {{ status_color }};">{{ status }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not tests %}
+<div class="content-card text-center py-5">
+    <i class="fas fa-clipboard-list fa-3x mb-3" style="color: var(--text-secondary);"></i>
+    <h5 style="color: var(--text-primary);">No Tests Yet</h5>
+    <p class="text-muted">Create your first test to get started</p>
+    <a href="{{ url_for('teacher_add_test') }}" class="btn-primary-custom">
+        <i class="fas fa-plus me-2"></i>Create Test
+    </a>
+</div>
+{% endif %}
+
+<style>
+.btn-outline-light {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.btn-outline-light:hover {
+    background: var(--accent);
+    color: var(--bg-primary);
+}
+
+.btn-outline-danger {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.btn-outline-danger:hover {
+    background: #ef4444;
+    color: white;
+}
+</style>
+{% endblock %}

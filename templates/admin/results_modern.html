@@ -1,0 +1,196 @@
+{% extends "base_modern.html" %}
+
+{% block title %}Natijalar - Joylinks IT{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="page-header mb-5" style="background: transparent; border: none; padding: 0;">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-4">
+            <div>
+                <h1 class="display-5 fw-bold mb-2" style="color: #fff !important; text-shadow: 0 0 20px rgba(0, 245, 160, 0.2);">
+                    <i class="fas fa-chart-bar me-3 text-accent"></i>Test Natijalari
+                </h1>
+                <p class="text-secondary fs-5">O'quvchilarning umumiy bilim ko'rsatkichlari jadvali</p>
+            </div>
+            <div class="d-flex gap-3">
+                <div class="dropdown">
+                    <button class="btn btn-premium dropdown-toggle" type="button" data-bs-toggle="dropdown" style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 24px;">
+                        <i class="fas fa-layer-group me-2"></i>Guruhlar
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        {% for g in admin_groups %}
+                        <li><a class="dropdown-item" href="{{ url_for('admin_export_group_results', group_id=g.id) }}">{{ g.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <a href="{{ url_for('admin_export_results') }}" class="btn-premium-solid" style="background: var(--accent); color: #000; font-weight: 700; border-radius: 12px; padding: 12px 24px; text-decoration: none;">
+                    <i class="fas fa-download me-2"></i>Eksport
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-card-premium p-0 overflow-hidden" style="background: #0d1117; border: 1px solid rgba(255,255,255,0.05);">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0" style="color: #fff;">
+                <thead style="background: rgba(255,255,255,0.02);">
+                    <tr>
+                        <th class="ps-4 py-4 text-secondary text-uppercase small fw-bold">O'quvchi</th>
+                        <th class="py-4 text-secondary text-uppercase small fw-bold">Test / Guruh</th>
+                        <th class="py-4 text-secondary text-uppercase small fw-bold">Natija</th>
+                        <th class="py-4 text-secondary text-uppercase small fw-bold">Amaliy Ball</th>
+                        <th class="py-4 text-secondary text-uppercase small fw-bold">Holat</th>
+                        <th class="py-4 text-secondary text-uppercase small fw-bold text-end pe-4">Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result, student, user, group, test in results %}
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.03); transition: 0.3s;">
+                        <td class="ps-4 py-4">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-box icon-emerald me-3">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold fs-6 text-white">{{ user.full_name }}</div>
+                                    <div class="text-secondary small">@{{ user.username }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column gap-1">
+                                <span class="badge" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; width: fit-content; font-size: 0.75rem;">{{ test.title }}</span>
+                                <span class="badge" style="background: rgba(168, 85, 247, 0.1); color: #a855f7; width: fit-content; font-size: 0.75rem;">{{ group.name }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="width: 120px;">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fw-bold" style="color: var(--accent);">{{ result.percentage }}%</span>
+                                </div>
+                                <div class="progress" style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                                    <div class="progress-bar" data-progress="{{ result.percentage }}" style="background: var(--accent); box-shadow: 0 0 10px var(--accent);"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if test.has_practical %}
+                                {% if result.practical_score is not none %}
+                                    <div class="practical-badge-vibrant">
+                                        <i class="fas fa-tools me-2"></i>{{ result.practical_score }}/100
+                                    </div>
+                                {% elif result.practical_submission %}
+                                    <span class="text-warning small fw-bold"><i class="fas fa-clock me-1"></i>Tekshirilmoqda</span>
+                                {% else %}
+                                    <span class="text-danger small fw-bold"><i class="fas fa-times me-1"></i>Topshirilmagan</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted small">Yo'q</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if result.percentage >= 60 %}
+                            <div class="status-badge-pass">O'tdi</div>
+                            {% else %}
+                            <div class="status-badge-fail">O'tolmadi</div>
+                            {% endif %}
+                        </td>
+                        <td class="pe-4 text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{{ url_for('admin_result_detail', result_id=result.id) }}" class="btn-action-view"><i class="fas fa-eye"></i></a>
+                                <a href="{{ url_for('admin_export_result_pdf', result_id=result.id) }}" class="btn-action-pdf"><i class="fas fa-file-pdf"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="px-4 py-4 d-flex justify-content-between align-items-center" style="background: rgba(255,255,255,0.01); border-top: 1px solid rgba(255,255,255,0.03);">
+            <div class="text-secondary small">Jami: {{ pagination.total }} ta natija</div>
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    {% if pagination.has_prev %}
+                    <li class="page-item"><a class="page-link-premium" href="{{ url_for('admin_results', page=pagination.prev_num) }}">&laquo;</a></li>
+                    {% endif %}
+                    {% for page_num in pagination.iter_pages() %}
+                        {% if page_num %}
+                        <li class="page-item">
+                            <a class="page-link-premium {% if page_num == pagination.page %}active{% endif %}" href="{{ url_for('admin_results', page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if pagination.has_next %}
+                    <li class="page-item"><a class="page-link-premium" href="{{ url_for('admin_results', page=pagination.next_num) }}">&raquo;</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-accent { color: var(--accent) !important; }
+    tr:hover { background: rgba(255, 255, 255, 0.02); }
+    
+    .practical-badge-vibrant {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        display: inline-flex;
+        align-items: center;
+        font-weight: 700;
+        background: rgba(168, 85, 247, 0.15);
+        color: #a855f7;
+        font-size: 0.8rem;
+        border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    .status-badge-pass {
+        padding: 0.25rem 1rem;
+        border-radius: 8px;
+        display: inline-block;
+        font-weight: 700;
+        background: #064e3b;
+        color: #6ee7b7;
+        font-size: 0.75rem;
+    }
+
+    .status-badge-fail {
+        padding: 0.25rem 1rem;
+        border-radius: 8px;
+        display: inline-block;
+        font-weight: 700;
+        background: #450a0a;
+        color: #fca5a5;
+        font-size: 0.75rem;
+    }
+
+    .btn-action-view, .btn-action-pdf {
+        width: 36px; height: 36px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        text-decoration: none;
+        transition: var(--transition);
+    }
+    .btn-action-view { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .btn-action-pdf { background: rgba(249, 115, 22, 0.1); color: #fb923c; }
+    .btn-action-view:hover, .btn-action-pdf:hover { transform: scale(1.1); filter: brightness(1.2); }
+
+    .page-link-premium {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #fff;
+        padding: 6px 12px;
+        border-radius: 8px;
+        text-decoration: none;
+        margin: 0 2px;
+        transition: var(--transition);
+    }
+    .page-link-premium.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+    .page-link-premium:hover:not(.active) { background: rgba(255,255,255,0.05); border-color: var(--accent); }
+
+    .dropdown-item:hover { background: var(--accent); color: #000; }
+</style>
+{% endblock %}

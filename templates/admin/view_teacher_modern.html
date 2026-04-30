@@ -1,0 +1,274 @@
+{% extends "base_modern.html" %}
+
+{% block title %}View Teacher - Joylinks IT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Teacher Details</h1>
+            <p class="page-subtitle">View teacher information and statistics</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin_edit_teacher', teacher_id=teacher.id) }}" class="btn btn-outline-warning">
+                <i class="fas fa-edit me-2"></i>Edit Teacher
+            </a>
+            <a href="{{ url_for('admin_teachers') }}" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left me-2"></i>Back to Teachers
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="content-card">
+            <div class="text-center mb-4">
+                <div class="teacher-avatar-lg mx-auto mb-3">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h4 style="color: var(--text-primary);">{{ user.full_name }}</h4>
+                <p class="text-muted">@{{ user.username }}</p>
+                <span class="badge bg-success">Teacher</span>
+            </div>
+            
+            <div class="teacher-info">
+                <div class="info-item">
+                    <label><i class="fas fa-id-card me-2"></i>Teacher ID</label>
+                    <span>{{ teacher.id }}</span>
+                </div>
+                <div class="info-item">
+                    <label><i class="fas fa-graduation-cap me-2"></i>Course</label>
+                    <span>{{ course.name }}</span>
+                </div>
+                <div class="info-item">
+                    <label><i class="fas fa-users me-2"></i>Total Groups</label>
+                    <span>{{ groups|length }}</span>
+                </div>
+                <div class="info-item">
+                    <label><i class="fas fa-user-graduate me-2"></i>Total Students</label>
+                    <span>{{ students|length }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <div class="content-card mb-4">
+            <h5 class="mb-4" style="color: var(--text-primary);">
+                <i class="fas fa-users me-2" style="color: var(--accent);"></i>Groups
+            </h5>
+            {% if groups %}
+            <div class="row g-3">
+                {% for group in groups %}
+                <div class="col-md-6">
+                    <div class="group-card">
+                        <div class="group-header">
+                            <div class="group-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h6 style="color: var(--text-primary);">{{ group.name }}</h6>
+                        </div>
+                        <div class="group-stats">
+                            <span class="student-count">{{ group.students|length }} students</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-users fa-2x mb-3" style="color: var(--text-secondary);"></i>
+                <p class="text-muted">No groups assigned to this teacher.</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="content-card">
+            <h5 class="mb-4" style="color: var(--text-primary);">
+                <i class="fas fa-user-graduate me-2" style="color: var(--accent);"></i>Students
+            </h5>
+            {% if students %}
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Username</th>
+                            <th>Group</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student, user_obj, group_obj in students %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="user-avatar-sm me-2">
+                                        <i class="fas fa-user-graduate"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">{{ user_obj.full_name }}</div>
+                                        <small class="text-muted">ID: {{ student.id }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ user_obj.username }}</td>
+                            <td>
+                                <span class="badge" style="background: var(--accent);">{{ group_obj.name }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-user-graduate fa-2x mb-3" style="color: var(--text-secondary);"></i>
+                <p class="text-muted">No students assigned to this teacher.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.teacher-avatar-lg {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg-primary);
+    font-size: 2rem;
+    animation: pulse 2s ease-in-out infinite;
+    box-shadow: 0 8px 30px rgba(26, 95, 79, 0.3);
+    border: 3px solid rgba(26, 95, 79, 0.2);
+}
+
+.user-avatar-sm {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg-primary);
+    font-size: 0.75rem;
+}
+
+.teacher-info {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin: 0;
+}
+
+.info-item span {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.group-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.group-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+}
+
+.group-header {
+    margin-bottom: 1rem;
+}
+
+.group-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg-primary);
+    margin: 0 auto 0.75rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.group-stats {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.student-count {
+    background: var(--bg-card);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+}
+
+.table {
+    color: var(--text-primary);
+}
+
+.table-dark {
+    background: var(--bg-card);
+}
+
+.table-dark th,
+.table-dark td {
+    border-color: var(--border);
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+}
+
+.btn-outline-warning {
+    border-color: #ffc107;
+    color: #ffc107;
+}
+
+.btn-outline-warning:hover {
+    background: #ffc107;
+    color: black;
+}
+
+.btn-outline-light {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.btn-outline-light:hover {
+    background: var(--accent);
+    color: var(--bg-primary);
+}
+</style>
+{% endblock %}

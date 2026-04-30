@@ -1,0 +1,188 @@
+{% extends "base_modern.html" %}
+
+{% block title %}Add Test - Joylinks IT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Create New Test</h1>
+            <p class="page-subtitle">Create a test for your students</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('teacher_tests') }}" class="btn-primary-custom">
+                <i class="fas fa-arrow-left me-2"></i>Back to Tests
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="content-card">
+            <form method="POST" id="testForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label" style="color: var(--text-primary);">Test Title</label>
+                        <input type="text" name="title" class="form-control" required style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary);">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" style="color: var(--text-primary);">Group</label>
+                        <select name="group_id" class="form-control" required style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary);">
+                            {% for group in groups %}
+                            <option value="{{ group.id }}">{{ group.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" style="color: var(--text-primary);">Start Time</label>
+                        <input type="datetime-local" name="start_time" class="form-control" required style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary);">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" style="color: var(--text-primary);">End Time</label>
+                        <input type="datetime-local" name="end_time" class="form-control" required style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary);">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" style="color: var(--text-primary);">Duration (minutes)</label>
+                        <input type="number" name="duration_minutes" class="form-control" required min="1" style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary);">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label" style="color: var(--text-primary);">Number of Questions</label>
+                    <input type="number" name="question_count" id="questionCount" class="form-control" min="1" max="20" value="5" required style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary);">
+                </div>
+
+                <div id="questionsContainer">
+                    <!-- Questions will be dynamically added here -->
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn-primary-custom">
+                        <i class="fas fa-save me-2"></i>Create Test
+                    </button>
+                    <a href="{{ url_for('teacher_tests') }}" class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    border-radius: 8px;
+    padding: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 0.2rem rgba(26, 95, 79, 0.25);
+    background: var(--bg-secondary);
+}
+
+.btn-outline-secondary {
+    border-color: var(--border);
+    color: var(--text-secondary);
+    background: transparent;
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--accent);
+}
+
+.question-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.question-title {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.option-input {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    border-radius: 6px;
+    padding: 0.5rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const questionCount = document.getElementById('questionCount');
+    const questionsContainer = document.getElementById('questionsContainer');
+    
+    function generateQuestions() {
+        const count = parseInt(questionCount.value);
+        questionsContainer.innerHTML = '';
+        
+        for (let i = 1; i <= count; i++) {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-card';
+            questionDiv.innerHTML = `
+                <h6 class="question-title">Question ${i}</h6>
+                <div class="mb-3">
+                    <label class="form-label">Question Text</label>
+                    <textarea name="question_${i}_text" class="form-control option-input" rows="2" required></textarea>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Option A</label>
+                        <input type="text" name="question_${i}_a" class="form-control option-input" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Option B</label>
+                        <input type="text" name="question_${i}_b" class="form-control option-input" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Option C</label>
+                        <input type="text" name="question_${i}_c" class="form-control option-input" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Option D</label>
+                        <input type="text" name="question_${i}_d" class="form-control option-input" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Correct Answer</label>
+                        <select name="question_${i}_correct" class="form-control option-input" required>
+                            <option value="">Select correct answer</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            questionsContainer.appendChild(questionDiv);
+        }
+    }
+    
+    questionCount.addEventListener('change', generateQuestions);
+    generateQuestions(); // Generate initial questions
+});
+</script>
+{% endblock %}

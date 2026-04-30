@@ -1,0 +1,498 @@
+{% extends "base_modern.html" %}
+
+{% block title %}Test Qo'shish - Joylinks IT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Test Qo'shish</h1>
+            <p class="page-subtitle">Yangi test yaratish va savollarni kiritish</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin_tests') }}" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left me-2"></i>Orqaga
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="content-card">
+            <form method="POST" id="testForm" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="fas fa-heading me-2"></i>Test nomi
+                        </label>
+                        <input type="text" class="form-control" name="title" required
+                            placeholder="Masalan: Python Dasturlash Testi">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="fas fa-users me-2"></i>Guruh
+                        </label>
+                        <select class="form-control" name="group_id" required>
+                            <option value="">Guruhni tanlang</option>
+                            {% for group, teacher, user in groups %}
+                            <option value="{{ group.id }}">
+                                {{ group.name }} ({{ user.full_name }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            <i class="fas fa-calendar-alt me-2"></i>Boshlanish vaqti
+                        </label>
+                        <input type="datetime-local" class="form-control" name="start_time" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            <i class="fas fa-calendar-check me-2"></i>Tugash vaqti
+                        </label>
+                        <input type="datetime-local" class="form-control" name="end_time" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            <i class="fas fa-clock me-2"></i>Davomiyligi (daqiqa)
+                        </label>
+                        <input type="number" class="form-control" name="duration_minutes" min="1" required
+                            placeholder="Masalan: 30">
+                    </div>
+                </div>
+
+                <div class="practical-section mb-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-tools me-2"></i>Amaliy topshiriq (Ixtiyoriy)
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="has_practical" name="has_practical" onchange="togglePractical()">
+                                <label class="form-check-label" for="has_practical">Amaliy topshiriq bormi?</label>
+                            </div>
+                        </div>
+                        <div id="practicalDetails" class="d-none">
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Amaliy topshiriq fayli (DOCX, EXCEL, PPTX, PDF, ZIP) - Max 7MB</label>
+                                <input type="file" class="form-control" name="practical_file">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Amaliy topshiriq haqida qisqacha tavsif</label>
+                                <textarea class="form-control" name="practical_description" rows="3" placeholder="O'quvchilar nima qilishi kerakligi haqida yozing..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="questions-section">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-question-circle me-2"></i>Savollar
+                        </h5>
+                        <button type="button" class="btn btn-sm btn-success" onclick="addQuestion()">
+                            <i class="fas fa-plus me-1"></i>Savol qo'shish
+                        </button>
+                    </div>
+
+                    <div id="questionsContainer">
+                        <!-- Savollar shu yerga qo'shiladi -->
+                    </div>
+                </div>
+
+                <input type="hidden" name="question_count" id="questionCount" value="0">
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn-primary-custom">
+                        <i class="fas fa-save me-2"></i>Testni saqlash
+                    </button>
+                    <a href="{{ url_for('admin_tests') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Bekor qilish
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-label {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .form-control {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        color: #ffffff;
+        transition: all 0.3s ease;
+        color-scheme: dark;
+    }
+
+    .form-control:focus {
+        background: var(--bg-card);
+        border-color: var(--accent);
+        color: #ffffff;
+        box-shadow: 0 0 0 0.2rem rgba(26, 95, 79, 0.25);
+    }
+
+    .form-control::placeholder {
+        color: var(--text-secondary);
+    }
+
+    /* Fix datetime-local picker icon and text in dark mode */
+    input[type="datetime-local"],
+    input[type="date"],
+    input[type="time"] {
+        color: #ffffff !important;
+        color-scheme: dark;
+    }
+
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator {
+        filter: invert(1) brightness(2);
+        cursor: pointer;
+        opacity: 0.9;
+    }
+
+    input[type="datetime-local"]::-webkit-datetime-edit,
+    input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper,
+    input[type="datetime-local"]::-webkit-datetime-edit-text,
+    input[type="datetime-local"]::-webkit-datetime-edit-month-field,
+    input[type="datetime-local"]::-webkit-datetime-edit-day-field,
+    input[type="datetime-local"]::-webkit-datetime-edit-year-field,
+    input[type="datetime-local"]::-webkit-datetime-edit-hour-field,
+    input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
+        color: #ffffff;
+    }
+
+    .question-item {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+
+    .question-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .question-number {
+        background: var(--accent);
+        color: var(--bg-primary);
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .btn-remove-question {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        cursor: pointer;
+    }
+
+    .btn-remove-question:hover {
+        background: #c82333;
+    }
+
+    .btn-primary-custom {
+        background: var(--accent);
+        color: var(--bg-primary);
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        font-weight: 500;
+    }
+
+    .btn-primary-custom:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+        color: var(--bg-primary);
+    }
+
+    .btn-outline-light {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: transparent;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        font-weight: 500;
+    }
+
+    .btn-outline-light:hover {
+        background: var(--accent);
+        color: var(--bg-primary);
+        transform: translateY(-2px);
+    }
+
+    .btn-outline-secondary {
+        border-color: var(--border);
+        color: var(--text-secondary);
+        background: transparent;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        font-weight: 500;
+    }
+
+    .btn-outline-secondary:hover {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        transform: translateY(-2px);
+    }
+
+    .btn-success {
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-success:hover {
+        background: #218838;
+        transform: translateY(-1px);
+    }
+
+    .content-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 2rem;
+        backdrop-filter: blur(20px);
+    }
+
+    .content-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        animation: shimmer 2s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+
+        0%,
+        100% {
+            transform: translateX(-100%);
+        }
+
+        50% {
+            transform: translateX(100%);
+        }
+    }
+
+    .content-card:hover {
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        border-color: var(--accent);
+    }
+
+    .questions-section {
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+    }
+</style>
+
+<script>
+    let questionCount = 0;
+
+    function addQuestion() {
+        questionCount++;
+        const container = document.getElementById('questionsContainer');
+
+        const questionHtml = `
+        <div class="question-item" id="question-${questionCount}">
+            <button type="button" class="btn-remove-question" onclick="removeQuestion(${questionCount})">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="question-header">
+                <span class="question-number">Savol ${questionCount}</span>
+            </div>
+            
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label">Savol matni</label>
+                    <textarea class="form-control" name="question_${questionCount}_text" rows="2" required 
+                              placeholder="Savolni kiriting..."></textarea>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label">A variant</label>
+                    <input type="text" class="form-control" name="question_${questionCount}_a" required 
+                           placeholder="A variant matni">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label">B variant</label>
+                    <input type="text" class="form-control" name="question_${questionCount}_b" required 
+                           placeholder="B variant matni">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label">C variant</label>
+                    <input type="text" class="form-control" name="question_${questionCount}_c" required 
+                           placeholder="C variant matni">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label">D variant</label>
+                    <input type="text" class="form-control" name="question_${questionCount}_d" required 
+                           placeholder="D variant matni">
+                </div>
+                
+                <div class="col-12">
+                    <label class="form-label">To'g'ri javob</label>
+                    <select class="form-control" name="question_${questionCount}_correct" required>
+                        <option value="">To'g'ri javobni tanlang</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    `;
+
+        container.insertAdjacentHTML('beforeend', questionHtml);
+        document.getElementById('questionCount').value = questionCount;
+    }
+
+    function removeQuestion(id) {
+        const element = document.getElementById(`question-${id}`);
+        element.remove();
+
+        // Qolgan savollarni qayta raqamlash
+        const questions = document.querySelectorAll('.question-item');
+        questions.forEach((q, index) => {
+            const newId = index + 1;
+            q.id = `question-${newId}`;
+            q.querySelector('.question-number').textContent = `Savol ${newId}`;
+            q.querySelector('.btn-remove-question').setAttribute('onclick', `removeQuestion(${newId})`);
+        });
+
+        questionCount = questions.length;
+        document.getElementById('questionCount').value = questionCount;
+    }
+
+    // Form yuborishdan oldin tekshirish
+    document.getElementById('testForm').addEventListener('submit', function (e) {
+        if (questionCount === 0) {
+            e.preventDefault();
+            alert('Iltimos, kamida bitta savol qo\'shing!');
+            return false;
+        }
+    });
+
+    function togglePractical() {
+        const checkbox = document.getElementById('has_practical');
+        const details = document.getElementById('practicalDetails');
+        if (checkbox.checked) {
+            details.classList.remove('d-none');
+            details.classList.add('d-block');
+        } else {
+            details.classList.remove('d-block');
+            details.classList.add('d-none');
+        }
+    }
+
+    // File validation
+    function validateFileInput(input, alertBoxId) {
+        const MAX_SIZE = 7 * 1024 * 1024;
+        const BLOCKED_EXTS = ['apk', 'exe', 'bat', 'sh', 'cmd', 'msi', 'com', 'scr'];
+        const file = input.files[0];
+        let alertBox = document.getElementById(alertBoxId);
+        if (!alertBox) {
+            alertBox = document.createElement('div');
+            alertBox.id = alertBoxId;
+            alertBox.style.marginTop = '8px';
+            alertBox.style.borderRadius = '8px';
+            alertBox.style.padding = '10px 14px';
+            alertBox.style.fontWeight = '500';
+            input.parentNode.insertBefore(alertBox, input.nextSibling);
+        }
+        if (!file) { alertBox.style.display='none'; return true; }
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (BLOCKED_EXTS.includes(ext)) {
+            alertBox.style.display='block';
+            alertBox.style.background='#7f1d1d'; alertBox.style.color='#fca5a5';
+            alertBox.innerHTML = '🚫 Bu fayl turi ruxsat etilmagan (.apk, .exe va shunga o\'xshash fayllar)!';
+            input.value=''; return false;
+        }
+        if (file.size > MAX_SIZE) {
+            const sizeMB = (file.size / (1024*1024)).toFixed(1);
+            alertBox.style.display='block';
+            alertBox.style.background='#7c2d12'; alertBox.style.color='#fdba74';
+            alertBox.innerHTML = `⚠️ Faylingiz juda katta: <strong>${sizeMB} MB</strong>. Maksimal: <strong>7 MB</strong>. Iltimos faylni kichikroq qiling.`;
+            input.value=''; return false;
+        }
+        alertBox.style.display='block';
+        alertBox.style.background='#14532d'; alertBox.style.color='#86efac';
+        const sizeMB = (file.size/(1024*1024)).toFixed(2);
+        alertBox.innerHTML = `✅ Fayl qabul qilindi: <strong>${file.name}</strong> (${sizeMB} MB)`;
+        return true;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const practicalFile = document.querySelector('input[name="practical_file"]');
+        if (practicalFile) {
+            practicalFile.addEventListener('change', function() { validateFileInput(this, 'admin-file-alert'); });
+        }
+        document.getElementById('testForm').addEventListener('submit', function(e) {
+            const f = this.querySelector('input[name="practical_file"]');
+            if (f && f.files.length > 0) {
+                if (!validateFileInput(f, 'admin-file-alert')) { e.preventDefault(); return false; }
+            }
+        });
+    });
+
+    // Dastlabki savolni qo'shish
+    document.addEventListener('DOMContentLoaded', function () {
+        addQuestion();
+    });
+</script>
+{% endblock %}

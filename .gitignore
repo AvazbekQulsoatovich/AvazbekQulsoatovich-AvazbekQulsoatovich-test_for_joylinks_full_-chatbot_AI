@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Database (Baza fayllari o'chib ketmasligi uchun)
+*.db
+*.sqlite3
+
+# Uploads (O'quvchilar yuklagan fayllar)
+static/uploads/*
+!static/uploads/.gitkeep
+
+# IDEs
+.vscode/
+.idea/
+.gemini/

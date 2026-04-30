@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Add Teacher - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add New Teacher</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('admin_teachers') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Teachers
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user-plus"></i> Teacher Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="full_name" class="form-label">Full Name *</label>
+                                <input type="text" class="form-control" id="full_name" name="full_name" required>
+                                <div class="form-text">Enter the teacher's full name.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username *</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                                <div class="form-text">Unique username for login.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password *</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                                <div class="form-text">Password for teacher login.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="course_id" class="form-label">Course *</label>
+                                <select class="form-select" id="course_id" name="course_id" required>
+                                    <option value="">Select a course</option>
+                                    {% for course in courses %}
+                                    <option value="{{ course.id }}">{{ course.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">Assign teacher to a course.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('admin_teachers') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Create Teacher
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Help</h5>
+            </div>
+            <div class="card-body">
+                <h6>Teacher Account:</h6>
+                <ul>
+                    <li>Username must be unique</li>
+                    <li>Password should be strong</li>
+                    <li>Teacher can create groups and students</li>
+                    <li>Teacher can create and manage tests</li>
+                </ul>
+                
+                <h6 class="mt-3">After Creation:</h6>
+                <p>The teacher will be able to:</p>
+                <ul>
+                    <li>Login with provided credentials</li>
+                    <li>Create student groups</li>
+                    <li>Add students to groups</li>
+                    <li>Create and manage tests</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

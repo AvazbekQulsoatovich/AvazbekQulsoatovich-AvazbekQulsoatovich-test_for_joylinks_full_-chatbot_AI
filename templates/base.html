@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Joylinks IT Test{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #2196f3;
+            --primary-dark: #1976d2;
+            --primary-light: #e3f2fd;
+            --secondary-blue: #90caf9;
+            --accent-blue: #64b5f6;
+            --text-dark: #263238;
+            --text-light: #546e7a;
+            --border-light: #e1f5fe;
+            --white: #ffffff;
+            --shadow-sm: 0 2px 8px rgba(33, 150, 243, 0.1);
+            --shadow-md: 0 4px 16px rgba(33, 150, 243, 0.15);
+            --shadow-lg: 0 8px 32px rgba(33, 150, 243, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f9ff 0%, #e3f2fd 100%);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, var(--primary-blue) 0%, var(--primary-dark) 100%);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(180deg); }
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.9);
+            padding: 14px 20px;
+            border-radius: 12px;
+            margin: 4px 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .sidebar .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
+            margin-right: 10px;
+        }
+
+        .main-content {
+            padding: 30px;
+            background: var(--white);
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: var(--text-light);
+            margin: 4px 0 0 0;
+            font-size: 0.95rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.15);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            background: var(--white);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(108, 117, 125, 0.25);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-gray) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 20px 20px 0 0 !important;
+            padding: 20px 24px;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        .btn {
+            border-radius: 10px;
+            font-weight: 500;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark) 100%);
+            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.3);
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(33, 150, 243, 0.4);
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #1565c0 100%);
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-action {
+            margin: 0 4px;
+            padding: 8px 12px;
+            font-size: 0.875rem;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(33, 150, 243, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stats-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(33, 150, 243, 0.4);
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stats-card h3 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stats-card p {
+            margin: 8px 0 0 0;
+            opacity: 0.9;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        .table {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--border-light) 100%);
+            border: none;
+            color: var(--primary-dark);
+            font-weight: 600;
+            padding: 16px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .table tbody tr:hover {
+            background: var(--primary-light);
+            transform: scale(1.01);
+        }
+
+        .table tbody td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            color: #2e7d32;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            color: #c62828;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            color: #f57c00;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid var(--border-light);
+            border-radius: 10px;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.15);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background: var(--border-light);
+        }
+
+        .progress-bar {
+            border-radius: 4px;
+        }
+
+        /* Footer Styles */
+        footer {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+            border-top: 3px solid var(--primary-blue);
+            margin-top: auto;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        footer h5, footer h6 {
+            color: var(--primary-blue) !important;
+            font-weight: 600;
+        }
+
+        footer a {
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: var(--primary-dark) !important;
+        }
+
+        footer .text-muted {
+            color: #6c757d !important;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+            
+            footer .row {
+                text-align: center;
+            }
+            
+            footer .col-md-4 {
+                margin-bottom: 20px;
+            }
+        }
+
+        .sidebar-logo {
+            position: relative;
+            z-index: 2;
+        }
+
+        .sidebar-logo i {
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .user-role-badge {
+            font-size: 0.75rem;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.9);
+            padding: 14px 20px;
+            border-radius: 12px;
+            margin: 4px 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateX(2px);
+        }
+
+        .sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
+            margin-right: 12px;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            {% if current_user.is_authenticated %}
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <div class="sidebar-logo">
+                            <i class="fas fa-graduation-cap fa-2x mb-2"></i>
+                            <h4 class="text-white fw-bold">Joylinks IT Test</h4>
+                            <p class="text-white-50 mb-2">{{ current_user.full_name }}</p>
+                            <span class="user-role-badge badge bg-{{ 'danger' if current_user.role == 'admin' else 'warning' if current_user.role == 'teacher' else 'success' }}">
+                                <i class="fas fa-{{ 'shield-alt' if current_user.role == 'admin' else 'chalkboard-teacher' if current_user.role == 'teacher' else 'user-graduate' }} me-1"></i>
+                                {{ current_user.role.upper() }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        {% if current_user.role == 'admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_courses') }}">
+                                <i class="fas fa-book"></i> Courses
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_teachers') }}">
+                                <i class="fas fa-chalkboard-teacher"></i> Teachers
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_students') }}">
+                                <i class="fas fa-user-graduate"></i> Students
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_results') }}">
+                                <i class="fas fa-chart-line"></i> Results
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_analytics') }}">
+                                <i class="fas fa-chart-pie"></i> Analytics
+                            </a>
+                        </li>
+                        {% elif current_user.role == 'teacher' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('teacher_dashboard') }}">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('teacher_groups') }}">
+                                <i class="fas fa-users"></i> Groups
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('teacher_students') }}">
+                                <i class="fas fa-user-graduate"></i> Students
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('teacher_tests') }}">
+                                <i class="fas fa-clipboard-list"></i> Tests
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('teacher_results') }}">
+                                <i class="fas fa-chart-line"></i> Results
+                            </a>
+                        </li>
+                        {% elif current_user.role == 'student' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('student_dashboard') }}">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                    
+                    <hr class="text-white-50">
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link text-danger" href="{{ url_for('logout') }}">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            {% endif %}
+            
+            <main class="{% if current_user.is_authenticated %}col-md-9 ms-sm-auto col-lg-10 px-md-4{% else %}col-12{% endif %} main-content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    {% if current_user.is_authenticated %}
+    <footer class="bg-light text-center py-3 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5 class="text-primary">Joylinks IT Test</h5>
+                    <p class="text-muted">Modern Education Management System</p>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="text-primary">Quick Links</h6>
+                    <a href="{{ url_for('index') }}" class="text-muted text-decoration-none me-3">Dashboard</a>
+                    <a href="{{ url_for('logout') }}" class="text-muted text-decoration-none">Logout</a>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="text-primary">Contact</h6>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-envelope me-2"></i>support@joylinks-test.com
+                    </p>
+                    <p class="text-muted">
+                        <i class="fas fa-phone me-2"></i>+998 XX XXX-XX-XX
+                    </p>
+                </div>
+            </div>
+            <hr class="my-3">
+            <p class="text-muted mb-0">© 2024 Joylinks IT Test. All rights reserved.</p>
+        </div>
+    </footer>
+    {% endif %}
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,151 @@
+{% extends "base_modern.html" %}
+{% block title %}Amaliy ishlar - {{ test.title }}{% endblock %}
+
+{% block content %}
+<!-- MODALS AT THE TOP FOR BETTER VISIBILITY -->
+{% for result, student, user in all_results %}
+    {% if result.practical_submission %}
+    <div class="modal fade" id="gradeModal{{ result.id }}" tabindex="-1" style="z-index: 9999;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background:#1a1d21; border:1px solid #444; border-radius:15px; box-shadow: 0 0 50px rgba(0,0,0,0.9);">
+                <div class="modal-header" style="border-bottom: 1px solid #333;">
+                    <h5 class="modal-title" style="color:#fff;">
+                        <i class="fas fa-star me-2 text-warning"></i>Baholash: {{ user.full_name }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="{{ url_for('admin_grade_practical', result_id=result.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                    <div class="modal-body p-4">
+                        <div class="mb-4 text-center">
+                            <p class="text-secondary small mb-2">Yuklangan fayl:</p>
+                            <a href="{{ url_for('download_file', filename=result.practical_submission) }}"
+                                class="btn btn-outline-info w-100">
+                                <i class="fas fa-download me-2"></i>Amaliy ishni ko'rish
+                            </a>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" style="color:#fff;">Ball (0-100):</label>
+                            <input type="number" class="form-control form-control-lg" name="practical_score"
+                                min="0" max="100" value="{{ result.practical_score or '' }}"
+                                placeholder="85" required
+                                style="background:#000; border:1px solid #555; color:#fff; text-align:center; font-size:1.5rem;">
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label" style="color:#fff;">Izoh:</label>
+                            <textarea class="form-control" name="practical_feedback" rows="3"
+                                placeholder="Fikr bildiring..."
+                                style="background:#000; border:1px solid #555; color:#fff;">{{ result.practical_feedback or '' }}</textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid #333;">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
+                        <button type="submit" class="btn btn-primary" style="background:#6f42c1; border:none;">Saqlash</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endfor %}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title"><i class="fas fa-tools me-2"></i>Amaliy Ishlar</h1>
+            <p class="page-subtitle">{{ test.title }}</p>
+        </div>
+        <a href="{{ url_for('admin_tests') }}" class="btn btn-outline-light">
+            <i class="fas fa-arrow-left me-2"></i>Orqaga
+        </a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="content-card text-center py-3">
+            <h3 class="mb-0" style="color:#86efac;">{{ all_results|length }}</h3>
+            <small class="text-secondary">Jami</small>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="content-card text-center py-3">
+            <h3 class="mb-0" style="color:#fdba74;">{{ pending_count }}</h3>
+            <small class="text-secondary">Navbatda</small>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="content-card text-center py-3">
+            <h3 class="mb-0" style="color:#a78bfa;">{{ graded_count }}</h3>
+            <small class="text-secondary">Baholandi</small>
+        </div>
+    </div>
+</div>
+
+<div class="content-card">
+    <div class="table-responsive" style="overflow: visible !important;">
+        <table class="table table-dark align-middle">
+            <thead>
+                <tr>
+                    <th>O'quvchi</th>
+                    <th>Fayl</th>
+                    <th>Test bali</th>
+                    <th>Amaliy bali</th>
+                    <th>Amal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result, student, user in all_results %}
+                <tr>
+                    <td>
+                        <strong>{{ user.full_name }}</strong>
+                        <br><small class="text-secondary">{{ result.submitted_at.strftime('%H:%M %d.%m') }}</small>
+                    </td>
+                    <td>
+                        {% if result.practical_submission %}
+                        <a href="{{ url_for('download_file', filename=result.practical_submission) }}" class="text-info">
+                            <i class="fas fa-file-download"></i> Fayl
+                        </a>
+                        {% else %}
+                        <span class="text-muted">Yo'q</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ result.percentage|round }}%</td>
+                    <td>
+                        {% if result.practical_score is not none %}
+                            <span class="badge {% if result.practical_score >= 60 %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ result.practical_score }}/100
+                            </span>
+                        {% elif result.practical_submission %}
+                            <span class="badge bg-warning text-dark">Kutilmoqda</span>
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if result.practical_submission %}
+                        <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#gradeModal{{ result.id }}">
+                            <i class="fas fa-check-circle"></i>
+                        </button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .content-card { 
+        background: #111; 
+        border: 1px solid #333; 
+        border-radius: 12px; 
+        padding: 20px; 
+        overflow: visible !important; 
+    }
+    /* Modal visibility fix */
+    .modal-backdrop { z-index: 1040 !important; }
+    .modal { z-index: 1050 !important; }
+</style>
+{% endblock %}

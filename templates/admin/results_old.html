@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block title %}Test Results - Joylinks IT Test{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Test Results Overview</h1>
+            <p class="page-subtitle">View and analyze student test performance across all groups.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('admin_analytics') }}" class="btn btn-primary">
+                <i class="fas fa-chart-pie me-2"></i>View Analytics
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-lg-6">
+        <div class="stats-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="mb-1">{{ results|length }}</h3>
+                    <p class="mb-0">Total Results</p>
+                </div>
+                <div class="stats-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-lg-6">
+        <div class="stats-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="mb-1">{{ results|selectattr('0.percentage', '>=', 60)|list|length }}</h3>
+                    <p class="mb-0">Passed</p>
+                </div>
+                <div class="stats-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-lg-6">
+        <div class="stats-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="mb-1">{{ results|selectattr('0.percentage', '<', 60)|list|length }}</h3>
+                    <p class="mb-0">Failed</p>
+                </div>
+                <div class="stats-icon">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-lg-6">
+        <div class="stats-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="mb-1">
+                        {% if results %}
+                            {{ "%.1f"|format((results|sum(attribute='0.percentage') / results|length)) }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </h3>
+                    <p class="mb-0">Average Score</p>
+                </div>
+                <div class="stats-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>All Test Results</h5>
+    </div>
+    <div class="card-body">
+        {% if results %}
+        <div class="table-responsive">
+            <table class="table modern-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Student</th>
+                        <th>Group</th>
+                        <th>Test</th>
+                        <th>Score</th>
+                        <th>Percentage</th>
+                        <th>Status</th>
+                        <th>Submitted</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result, student, user, group, test in results %}
+                    <tr>
+                        <td><span class="badge bg-secondary">#{{ result.id }}</span></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                    {{ user.full_name[0].upper() }}
+                                </div>
+                                <strong>{{ user.full_name }}</strong>
+                            </div>
+                        </td>
+                        <td><span class="badge bg-primary">{{ group.name }}</span></td>
+                        <td><strong>{{ test.title }}</strong></td>
+                        <td>
+                            <span class="score-badge">{{ result.score }}/{{ result.total_questions }}</span>
+                        </td>
+                        <td>
+                            <div class="progress-wrapper">
+                                <div class="progress" style="height: 24px;">
+                                    <div class="progress-bar {% if result.percentage >= 60 %}bg-success{% elif result.percentage >= 40 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                         role="progressbar" 
+                                         style="width: {{ result.percentage }} %">
+                                        {{ "%.1f"|format(result.percentage) }}%
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if result.percentage >= 60 %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check me-1"></i>Pass
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-times me-1"></i>Fail
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="date-info">
+                                <i class="fas fa-calendar me-1"></i>
+                                {{ result.submitted_at.strftime('%Y-%m-%d') }}
+                                <br>
+                                <small class="text-muted">{{ result.submitted_at.strftime('%H:%M') }}</small>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin_export_result_pdf', result_id=result.id) }}" 
+                               class="btn btn-sm btn-primary btn-action">
+                                <i class="fas fa-download me-1"></i>PDF
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No Test Results Found</h5>
+            <p class="text-muted">Students need to take tests to generate results.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.stats-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.stats-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+.modern-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.modern-table thead {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+}
+
+.modern-table th {
+    border: none;
+    padding: 16px 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.modern-table tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.modern-table tbody tr:hover {
+    background: var(--gray-50);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.modern-table td {
+    padding: 16px 12px;
+    vertical-align: middle;
+    border: none;
+}
+
+.avatar-sm {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.score-badge {
+    background: var(--gray-100);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.progress-wrapper {
+    min-width: 120px;
+}
+
+.progress {
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--gray-100);
+}
+
+.progress-bar {
+    transition: width 0.6s ease;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+.date-info {
+    font-size: 0.875rem;
+}
+
+.btn-action {
+    transition: all 0.3s ease;
+    border-radius: 6px;
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.badge {
+    font-weight: 500;
+    padding: 6px 10px;
+}
+</style>
+{% endblock %}

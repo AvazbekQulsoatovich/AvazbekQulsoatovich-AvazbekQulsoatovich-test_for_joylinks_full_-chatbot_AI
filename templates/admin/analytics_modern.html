@@ -1,0 +1,262 @@
+{% extends "base_modern.html" %}
+
+{% block title %}Analitika - Joylinks IT{% endblock %}
+
+{% block content %}
+<div class="page-content animate-up">
+    <div class="page-header mb-5">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-4">
+            <div>
+                <h1 class="page-title text-gradient display-5"><i class="fas fa-chart-pie me-2"></i>Analitika Dashboard</h1>
+                <p class="page-subtitle text-secondary">Test natijalari va o'quvchilar ko'rsatkichlari</p>
+            </div>
+            <button class="btn-refresh-premium" onclick="location.reload()">
+                <i class="fas fa-sync-alt me-2"></i>Ma'lumotlarni yangilash
+            </button>
+        </div>
+    </div>
+
+    <!-- Stat Cards Section -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="stat-card-vibrant blue">
+                <div class="stat-icon-bg"><i class="fas fa-clipboard-list"></i></div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ charts.total_results if charts.total_results else '0' }}</h3>
+                    <p class="stat-label">Jami Testlar</p>
+                </div>
+                <div class="stat-chart-mini"><canvas id="miniChart1"></canvas></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card-vibrant emerald">
+                <div class="stat-icon-bg"><i class="fas fa-star"></i></div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ "%.1f"|format(charts.average_score) if charts.average_score else '0.0' }}%</h3>
+                    <p class="stat-label">O'rtacha Ball</p>
+                </div>
+                <div class="stat-chart-mini"><canvas id="miniChart2"></canvas></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card-vibrant purple">
+                <div class="stat-icon-bg"><i class="fas fa-check-double"></i></div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ charts.pass_fail.pass if charts.pass_fail else '0' }}</h3>
+                    <p class="stat-label">O'tganlar</p>
+                </div>
+                <div class="stat-chart-mini"><canvas id="miniChart3"></canvas></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card-vibrant rose">
+                <div class="stat-icon-bg"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ charts.pass_fail.fail if charts.pass_fail else '0' }}</h3>
+                    <p class="stat-label">O'tolmaganlar</p>
+                </div>
+                <div class="stat-chart-mini"><canvas id="miniChart4"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Charts Section -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-8">
+            <div class="content-card-premium h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="m-0 text-white fw-bold"><i class="fas fa-chart-bar me-2 text-accent"></i>Guruhlar ko'rsatkichi</h5>
+                </div>
+                <div style="height: 350px;">
+                    <canvas id="groupPerformanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="content-card-premium h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="m-0 text-white fw-bold"><i class="fas fa-chart-pie me-2 text-purple"></i>Umumiy Holat</h5>
+                </div>
+                <div style="height: 350px; display: flex; align-items: center; justify-content: center;">
+                    <canvas id="mainPassFailChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed List Section -->
+    <div class="content-card-premium">
+        <h5 class="mb-4 text-white fw-bold"><i class="fas fa-list-check me-2 text-blue"></i>Guruhlar bo'yicha batafsil</h5>
+        <div class="row g-4">
+            {% if charts.group_averages %}
+            {% for group_name, avg_score in charts.group_averages.items() %}
+            <div class="col-md-6">
+                <div class="group-rank-item">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rank-icon">{{ loop.index }}</div>
+                            <span class="text-white fw-bold fs-6">{{ group_name }}</span>
+                        </div>
+                        <span class="rank-score">{{ "%.1f"|format(avg_score) }}%</span>
+                    </div>
+                    <div class="progress-premium">
+                        <div class="progress-bar-premium" data-progress="{{ avg_score }}" style="background: linear-gradient(90deg, var(--accent), #38bdf8);"></div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="col-12 text-center py-5">
+                <div class="text-secondary opacity-50 mb-3"><i class="fas fa-database fa-3x"></i></div>
+                <p class="text-secondary">Ma'lumotlar hozircha mavjud emas</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Vibrant Stat Cards */
+    .stat-card-vibrant {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 24px;
+        position: relative;
+        overflow: hidden;
+        transition: var(--transition);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 160px;
+    }
+    .stat-card-vibrant:hover { transform: translateY(-10px); border-color: rgba(255,255,255,0.2); }
+    
+    .stat-card-vibrant.blue { border-bottom: 4px solid #38bdf8; }
+    .stat-card-vibrant.emerald { border-bottom: 4px solid #10b981; }
+    .stat-card-vibrant.purple { border-bottom: 4px solid #8b5cf6; }
+    .stat-card-vibrant.rose { border-bottom: 4px solid #f43f5e; }
+
+    .stat-icon-bg {
+        width: 45px; height: 45px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; margin-bottom: 15px;
+    }
+    .blue .stat-icon-bg { background: rgba(56, 189, 248, 0.1); color: #38bdf8; }
+    .emerald .stat-icon-bg { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .purple .stat-icon-bg { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+    .rose .stat-icon-bg { background: rgba(244, 63, 94, 0.1); color: #f43f5e; }
+
+    .stat-number { font-size: 2rem; font-weight: 800; color: #fff; margin: 0; line-height: 1.2; }
+    .stat-label { color: #94a3b8; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin: 0; }
+
+    .stat-chart-mini { position: absolute; bottom: 10px; right: 10px; width: 80px; height: 40px; opacity: 0.5; }
+
+    /* Group Rank Item */
+    .group-rank-item {
+        background: rgba(255,255,255,0.02);
+        padding: 20px;
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.05);
+        transition: var(--transition);
+    }
+    .group-rank-item:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+
+    .rank-icon {
+        width: 30px; height: 30px; border-radius: 8px;
+        background: var(--accent); color: #000;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 0.8rem;
+    }
+    .rank-score { font-weight: 800; color: var(--accent); font-size: 1.1rem; }
+
+    .progress-premium { height: 8px; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden; }
+    .progress-bar-premium { height: 100%; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 245, 160, 0.2); }
+
+    .btn-refresh-premium {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 14px;
+        font-weight: 700;
+        transition: var(--transition);
+    }
+    .btn-refresh-premium:hover { background: #fff; color: #000; transform: rotate(180deg); }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script id="chart-data" type="application/json">
+{{ {
+    'group_labels': (charts.group_averages.keys()|list if charts.group_averages else []),
+    'group_values': (charts.group_averages.values()|list if charts.group_averages else []),
+    'pass_count': (charts.pass_fail['pass'] if charts.pass_fail else 0),
+    'fail_count': (charts.pass_fail['fail'] if charts.pass_fail else 0)
+}|tojson|safe }}
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const rawData = JSON.parse(document.getElementById('chart-data').textContent);
+        
+        // Group Chart
+        const groupCtx = document.getElementById('groupPerformanceChart').getContext('2d');
+        new Chart(groupCtx, {
+            type: 'bar',
+            data: {
+                labels: rawData.group_labels,
+                datasets: [{
+                    label: "O'rtacha natija",
+                    data: rawData.group_values,
+                    backgroundColor: 'rgba(0, 245, 160, 0.2)',
+                    borderColor: '#00f5a0',
+                    borderWidth: 2,
+                    borderRadius: 12,
+                    barThickness: 30
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { 
+                        beginAtZero: true, max: 100, 
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#64748b' }
+                    },
+                    x: { grid: { display: false }, ticks: { color: '#64748b' } }
+                }
+            }
+        });
+
+        // Pass/Fail Chart
+        const pfCtx = document.getElementById('mainPassFailChart').getContext('2d');
+        new Chart(pfCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ["O'tganlar", "O'tolmaganlar"],
+                datasets: [{
+                    data: [rawData.pass_count, rawData.fail_count],
+                    backgroundColor: ['#10b981', '#f43f5e'],
+                    hoverOffset: 15,
+                    borderWidth: 0,
+                    spacing: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#94a3b8', font: { weight: '600' }, padding: 20 }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

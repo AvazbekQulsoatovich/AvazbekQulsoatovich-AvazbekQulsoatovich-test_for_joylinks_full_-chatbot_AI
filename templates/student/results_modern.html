@@ -1,0 +1,232 @@
+{% extends "base_modern.html" %}
+
+{% block title %}Mening Natijalarim - Joylinks IT{% endblock %}
+
+{% block content %}
+<div class="animate-up">
+    <!-- Header Section -->
+    <div class="page-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="page-title text-gradient"><i class="fas fa-award me-2"></i>Mening Natijalarim</h1>
+                <p class="page-subtitle text-white-50">Sizning barcha yutuqlaringiz va test tarixingiz</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('student_dashboard') }}" class="btn-neon-blue">
+                    <i class="fas fa-arrow-left me-2"></i>Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Summary Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="glass-card p-4 d-flex align-items-center gap-3">
+                <div class="icon-circle bg-emerald"><i class="fas fa-check-double"></i></div>
+                <div>
+                    <div class="text-white-50 small fw-bold uppercase">Umumiy Testlar</div>
+                    <div class="h4 mb-0 fw-bold text-white">{{ results|length }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card p-4 d-flex align-items-center gap-3">
+                <div class="icon-circle bg-blue"><i class="fas fa-star"></i></div>
+                <div>
+                    <div class="text-white-50 small fw-bold uppercase">O'rtacha ko'rsatkich</div>
+                    <div class="h4 mb-0 fw-bold text-white">{{ (results|sum(attribute='0.percentage') / results|length)|round if results else 0 }}%</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card p-4 d-flex align-items-center gap-3">
+                <div class="icon-circle bg-purple"><i class="fas fa-trophy"></i></div>
+                <div>
+                    <div class="text-white-50 small fw-bold uppercase">Eng yaxshi natija</div>
+                    {% set max_score = 0 %}
+                    {% for r, t in results %}
+                        {% if r.percentage > max_score %}{% set max_score = r.percentage %}{% endif %}
+                    {% endfor %}
+                    <div class="h4 mb-0 fw-bold text-white">{{ max_score|round }}%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Table Card -->
+    <div class="glass-card overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">TEST NOMI</th>
+                        <th>SANA / VAQT</th>
+                        <th>NATIJA</th>
+                        <th>HOLAT</th>
+                        <th class="text-center pe-4">AMAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result, test in results %}
+                    <tr class="result-row">
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="test-mini-icon me-3"><i class="fas fa-file-alt"></i></div>
+                                <span class="fw-bold text-white">{{ test.title }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="text-white-50 small"><i class="far fa-calendar-alt me-1"></i>{{ result.submitted_at.strftime('%d.%m.%Y') }}</span>
+                                <span class="text-white-50 small"><i class="far fa-clock me-1"></i>{{ result.submitted_at.strftime('%H:%M') }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="p-bar-container">
+                                    <div class="p-bar-fill {% if result.percentage >= 60 %}bg-emerald{% else %}bg-danger{% endif %}" 
+                                         data-progress="{{ result.percentage }}"></div>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <span class="fw-bold text-white">{{ result.percentage|round }}%</span>
+                                    {% if test.has_practical %}
+                                        <small class="text-accent" style="font-size: 0.7rem;">
+                                            Amaliy: {% if result.practical_score is not none %}{{ result.practical_score }}{% else %}---{% endif %}
+                                        </small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if result.percentage >= 60 %}
+                                <span class="status-chip success">O'tdi</span>
+                            {% else %}
+                                <span class="status-chip danger">O'tolmadi</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center pe-4">
+                            <a href="{{ url_for('student_download_result_pdf', result_id=result.id) }}" 
+                               class="btn-action-pdf" title="PDF yuklash">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not results %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="empty-state">
+                                <i class="fas fa-history fa-3x mb-3 text-white-50"></i>
+                                <h5 class="text-white">Hali test topshirilmagan</h5>
+                                <p class="text-white-50">Sizda hali natijalar mavjud emas.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-gradient {
+        background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+    }
+
+    .glass-card {
+        background: rgba(17, 22, 32, 0.7);
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+
+    .icon-circle {
+        width: 50px; height: 50px;
+        border-radius: 15px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem;
+        color: #fff;
+    }
+    .bg-emerald { background: linear-gradient(135deg, #059669, #10b981); box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3); }
+    .bg-blue { background: linear-gradient(135deg, #2563eb, #3b82f6); box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3); }
+    .bg-purple { background: linear-gradient(135deg, #7c3aed, #8b5cf6); box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3); }
+    .bg-danger { background: linear-gradient(135deg, #dc2626, #ef4444); }
+
+    .table thead th {
+        background: rgba(255,255,255,0.02);
+        color: rgba(255,255,255,0.4);
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        padding: 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .result-row { border-bottom: 1px solid rgba(255,255,255,0.03); transition: all 0.2s ease; }
+    .result-row:hover { background: rgba(255,255,255,0.03); }
+    .result-row td { padding: 20px; vertical-align: middle; border: none; }
+
+    .test-mini-icon {
+        width: 38px; height: 38px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--accent);
+    }
+
+    .p-bar-container {
+        width: 120px; height: 8px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .p-bar-fill { height: 100%; border-radius: 10px; transition: width 1s ease-in-out; }
+
+    .status-chip {
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .status-chip.success { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+    .status-chip.danger { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+
+    .btn-action-pdf {
+        width: 38px; height: 38px;
+        border-radius: 10px;
+        display: inline-flex; align-items: center; justify-content: center;
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    .btn-action-pdf:hover { background: #10b981; color: #000; transform: translateY(-2px); }
+
+    .btn-neon-blue {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+        padding: 10px 20px;
+        border-radius: 15px;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    .btn-neon-blue:hover { background: #3b82f6; color: #fff; box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+</style>
+<script>
+    document.querySelectorAll('[data-progress]').forEach(el => {
+        const progress = el.getAttribute('data-progress');
+        el.style.width = progress + '%';
+    });
+</script>
+{% endblock %}

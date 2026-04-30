@@ -1,0 +1,275 @@
+{% extends "base_modern.html" %}
+
+{% block title %}{{ student[1].full_name }} - O'quvchi ma'lumotlari{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">{{ student[1].full_name }}</h1>
+            <p class="page-subtitle">O'quvchi haqida to'liq ma'lumot</p>
+        </div>
+        <div>
+            <a href="{{ url_for('admin_students') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>Orqaga
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Charts Row -->
+    <div class="col-lg-8">
+        <div class="content-card">
+            <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">
+                <i class="fas fa-chart-line me-2" style="color: var(--accent);"></i>O'zlashtirish grafigi
+            </h5>
+            <div style="height: 300px;">
+                <canvas id="studentProgressChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="content-card">
+            <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">
+                <i class="fas fa-chart-bar me-2" style="color: var(--accent);"></i>Oylik o'rtacha
+            </h5>
+            <div style="height: 300px;">
+                <canvas id="monthlyAverageChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Asosiy ma'lumotlar -->
+    <div class="col-lg-4">
+        <div class="content-card">
+            <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">
+                <i class="fas fa-user me-2" style="color: var(--accent);"></i>Shaxsiy ma'lumotlar
+            </h5>
+            <div class="info-section">
+                <div class="info-item">
+                    <label>To'liq ism</label>
+                    <span>{{ student[1].full_name }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Username</label>
+                    <span>{{ student[1].username }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Lavozim</label>
+                    <span>O'quvchi</span>
+                </div>
+                <div class="info-item">
+                    <label>Guruh</label>
+                    <span>{{ student[2].name }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guruh va o'qituvchi ma'lumotlari -->
+    <div class="col-lg-4">
+        <div class="content-card">
+            <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">
+                <i class="fas fa-users me-2" style="color: var(--accent);"></i>O'qituvchi va Kurs
+            </h5>
+            <div class="info-section">
+                <div class="info-item">
+                    <label>Kurs</label>
+                    <span>{{ student[5].name }}</span>
+                </div>
+                <div class="info-item">
+                    <label>O'qituvchi</label>
+                    <span>{{ student[4].full_name }}</span>
+                </div>
+                <div class="info-item">
+                    <label>O'qituvchi username</label>
+                    <span>{{ student[4].username }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test natijalari -->
+    <div class="col-lg-4">
+        <div class="content-card">
+            <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">
+                <i class="fas fa-list-check me-2" style="color: var(--accent);"></i>Oxirgi natijalar
+            </h5>
+            {% if student[0].results %}
+            <div class="test-results" style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
+                {% for result in student[0].results|sort(attribute='submitted_at', reverse=True) %}
+                <div class="result-item mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h6 class="mb-0" style="font-size: 0.9rem;">{{ result.test.title }}</h6>
+                        <span class="badge {{ 'bg-success' if result.percentage >= 60 else 'bg-warning' }}">
+                            {{ "%.1f"|format(result.percentage) }}%
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <small class="text-muted">{{ result.submitted_at.strftime('%d.%m.%Y') }}</small>
+                        <small class="text-muted">{{ result.score }}/{{ result.total_questions }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-clipboard-list fa-2x mb-3" style="color: var(--text-secondary);"></i>
+                <p class="text-muted">Hali test topshirmagan</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Chart Data -->
+<div id="chart-data" data-labels="{{ chart_labels|tojson }}" data-scores="{{ chart_data|tojson }}"
+    data-monthly-labels="{{ monthly_labels|tojson }}" data-monthly-data="{{ monthly_data|tojson }}"
+    style="display: none;">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Get data from data attributes
+        const chartDataEl = document.getElementById('chart-data');
+        const labelsData = JSON.parse(chartDataEl.dataset.labels);
+        const scoresData = JSON.parse(chartDataEl.dataset.scores);
+        const monthlyLabels = JSON.parse(chartDataEl.dataset.monthlyLabels);
+        const monthlyAverages = JSON.parse(chartDataEl.dataset.monthlyData);
+
+        // Individual Progress Chart
+        const progressCtx = document.getElementById('studentProgressChart').getContext('2d');
+        new Chart(progressCtx, {
+            type: 'line',
+            data: {
+                labels: labelsData,
+                datasets: [{
+                    label: 'Test natijasi (%)',
+                    data: scoresData,
+                    borderColor: '#1a5f4f',
+                    backgroundColor: 'rgba(26, 95, 79, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#1a5f4f',
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { color: '#888' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#888' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // Monthly Average Chart
+        const monthlyCtx = document.getElementById('monthlyAverageChart').getContext('2d');
+        new Chart(monthlyCtx, {
+            type: 'bar',
+            data: {
+                labels: monthlyLabels,
+                datasets: [{
+                    label: 'Oylik o\'rtacha (%)',
+                    data: monthlyAverages,
+                    backgroundColor: 'rgba(26, 95, 79, 0.7)',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { color: '#888' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#888' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    });
+</script>
+
+<style>
+    .info-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+    }
+
+    .info-item label {
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin: 0;
+        font-size: 0.85rem;
+    }
+
+    .info-item span {
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .result-item {
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        padding: 0.75rem;
+        border: 1px solid var(--border);
+        transition: transform 0.2s;
+    }
+
+    .result-item:hover {
+        transform: translateX(5px);
+        border-color: var(--accent);
+    }
+
+    .test-results::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .test-results::-webkit-scrollbar-track {
+        background: var(--bg-secondary);
+    }
+
+    .test-results::-webkit-scrollbar-thumb {
+        background: var(--accent);
+        border-radius: 5px;
+    }
+</style>
+{% endblock %}

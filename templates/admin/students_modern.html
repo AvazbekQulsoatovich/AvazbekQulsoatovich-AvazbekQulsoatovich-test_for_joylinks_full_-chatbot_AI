@@ -1,0 +1,347 @@
+{% extends "base_modern.html" %}
+
+{% block title %}O'quvchilar - Joylinks IT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">O'quvchilar Boshqaruvi</h1>
+            <p class="page-subtitle">Barcha ro'yxatdan o'tgan o'quvchilar</p>
+        </div>
+        <div class="d-flex gap-2">
+            <div class="search-box">
+                <input type="text" id="studentSearch" placeholder="O'quvchini qidirish..." class="form-control">
+                <i class="fas fa-search"></i>
+            </div>
+            <a href="{{ url_for('admin_export_students') }}" class="btn-primary-custom" style="text-decoration: none;">
+                <i class="fas fa-download me-2"></i>Eksport
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="content-card">
+    <div class="table-responsive">
+        <table class="table table-hover" id="studentsTable">
+            <thead>
+                <tr>
+                    <th><i class="fas fa-user-graduate me-2"></i>O'quvchi</th>
+                    <th><i class="fas fa-users me-2"></i>Guruh</th>
+                    <th><i class="fas fa-chalkboard-teacher me-2"></i>O'qituvchi</th>
+                    <th><i class="fas fa-book me-2"></i>Kurs</th>
+                    <th><i class="fas fa-chart-line me-2"></i>Natijalar</th>
+                    <th><i class="fas fa-cogs me-2"></i>Amallar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student_data in students %}
+                <tr class="student-row" data-name="{{ student_data.user.full_name|lower }}"
+                    data-username="{{ student_data.user.username|lower }}">
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="student-avatar me-3">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div>
+                                <strong>{{ student_data.user.full_name }}</strong>
+                                <br>
+                                <small class="text-muted">@{{ student_data.user.username }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-info">{{ student_data.group.name or 'Guruh yo\'q' }}</span>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="teacher-avatar me-2">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <span>{{ student_data.teacher.user.full_name }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-warning">{{ student_data.course.name }}</span>
+                    </td>
+                    <td>
+                        <div class="student-results">
+                            {% set student_results = student_data.student.results %}
+                            {% if student_results %}
+                            {% set total_tests = student_results|length %}
+                            {% set avg_score = (student_results|map(attribute='percentage')|sum / total_tests) %}
+                            <div class="result-info">
+                                <span class="badge bg-{{ 'success' if avg_score >= 60 else 'warning' }}">
+                                    {{ "%.1f"|format(avg_score) }}%
+                                </span>
+                                <small class="text-muted">{{ total_tests }} ta test</small>
+                            </div>
+                            {% else %}
+                            <span class="badge bg-secondary">Test topshirmagan</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="{{ url_for('admin_view_student', student_id=student_data.student.id) }}"
+                                class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i> Batafsil
+                            </a>
+                            <a href="{{ url_for('admin_edit_student', student_id=student_data.student.id) }}"
+                                class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-edit"></i> Tahrirlash
+                            </a>
+                            <form id="delete-student-{{ student_data.student.id }}" method="POST"
+                                action="{{ url_for('admin_delete_student', student_id=student_data.student.id) }}"
+                                class="d-inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                    onclick="confirmDelete('O\'quvchini o\'chirish?', 'Rostdan ham ushbu o\'quvchini o\'chirib tashlamoqchimisiz? Uning barcha natijalari ham o\'chib ketadi!', 'delete-student-{{ student_data.student.id }}')">
+                                    <i class="fas fa-trash"></i> O'chirish
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="pagination-container d-flex justify-content-between align-items-center mt-4">
+        <div class="pagination-info text-secondary small">
+            Jami: {{ pagination.total }} ta o'quvchi | Sahifa: {{ pagination.page }}/{{ pagination.pages }}
+        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0">
+                {% if pagination.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin_students', page=pagination.prev_num) }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('admin_students', page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if pagination.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin_students', page=pagination.next_num) }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<script>
+    function searchStudents() {
+        const searchTerm = document.getElementById('studentSearch').value.toLowerCase();
+        const rows = document.querySelectorAll('.student-row');
+
+        rows.forEach(row => {
+            const name = row.getAttribute('data-name');
+            const username = row.getAttribute('data-username');
+
+            if (name.includes(searchTerm) || username.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Search input event listener
+    document.getElementById('studentSearch').addEventListener('input', searchStudents);
+</script>
+
+<style>
+    .search-box {
+        position: relative;
+        max-width: 300px;
+    }
+
+    .search-box input {
+        padding-left: 40px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--bg-card);
+        color: var(--text-primary);
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+    }
+
+    .student-avatar,
+    .teacher-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--bg-primary);
+    }
+
+    .student-results {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .result-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .table {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .table th {
+        background: var(--bg-secondary);
+        border: none;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    .table td {
+        border: none;
+        border-bottom: 1px solid var(--border);
+        color: var(--text-primary);
+        background: var(--bg-card) !important;
+    }
+
+    .table-hover tbody tr:hover {
+        background: var(--bg-secondary) !important;
+    }
+
+    .table-hover tbody tr {
+        background: var(--bg-card) !important;
+    }
+
+    .badge {
+        padding: 0.5rem 0.75rem;
+        font-weight: 500;
+    }
+
+    /* Pagination Styles */
+    .pagination-container {
+        border-top: 1px solid var(--border);
+        padding-top: 1.5rem;
+    }
+
+    .pagination .page-link {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        color: var(--text-primary);
+        margin: 0 2px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .pagination .page-item.active .page-link {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--bg-primary);
+    }
+
+    .pagination .page-link:hover {
+        background: var(--accent-hover);
+        color: var(--bg-primary);
+        border-color: var(--accent-hover);
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background: var(--bg-card);
+        border-color: var(--border);
+        color: var(--text-secondary);
+        opacity: 0.5;
+    }
+
+    .progress {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .btn-outline-light {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    .btn-outline-light:hover {
+        background: var(--accent);
+        color: var(--bg-primary);
+        transform: translateY(-2px);
+    }
+
+    .btn-outline-success {
+        border-color: #28a745;
+        color: #28a745;
+    }
+
+    .btn-outline-success:hover {
+        background: #28a745;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-outline-danger {
+        border-color: #dc3545;
+        color: #dc3545;
+    }
+
+    .btn-outline-danger:hover {
+        background: #dc3545;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Floating elements */
+    .floating-element {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        background: var(--accent);
+        border-radius: 50%;
+        animation: floatElement 5s ease-in-out infinite;
+    }
+
+    @keyframes floatElement {
+
+        0%,
+        100% {
+            transform: translateY(0px) scale(1);
+            opacity: 0.6;
+        }
+
+        50% {
+            transform: translateY(-15px) scale(1.2);
+            opacity: 1;
+        }
+    }
+</style>
+
+
+{% endblock %}

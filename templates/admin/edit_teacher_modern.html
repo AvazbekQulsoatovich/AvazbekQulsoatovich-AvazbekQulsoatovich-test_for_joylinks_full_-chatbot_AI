@@ -1,0 +1,274 @@
+{% extends "base_modern.html" %}
+
+{% block title %}Edit Teacher - Joylinks IT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">O'qituvchini Tahrirlash</h1>
+            <p class="page-subtitle">O'qituvchi ma'lumotlarini yangilash</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin_teachers') }}" class="btn-primary-custom">
+                <i class="fas fa-arrow-left me-2"></i>O'qituvchilarga qaytish
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="content-card">
+            <form method="POST" class="modern-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show"
+                    role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label for="full_name" class="form-label">
+                                <i class="fas fa-id-card me-2"></i>To'liq ism
+                            </label>
+                            <input type="text" class="form-control" id="full_name" name="full_name" required
+                                value="{{ teacher.user.full_name }}" placeholder="Ism va familiyani kiriting">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label for="username" class="form-label">
+                                <i class="fas fa-user me-2"></i>Login (Username)
+                            </label>
+                            <input type="text" class="form-control" id="username" name="username" required
+                                value="{{ teacher.user.username }}" placeholder="Login" readonly>
+                            <small class="text-secondary">Loginni o'zgartirib bo'lmaydi</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock me-2"></i>Yangi parol
+                            </label>
+                            <input type="password" class="form-control" id="password" name="password"
+                                placeholder="O'zgartirmaslik uchun bo'sh qoldiring">
+                            <small class="text-secondary">Faqat yangilash kerak bo'lsa kiriting</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label for="course_id" class="form-label">
+                                <i class="fas fa-book me-2"></i>Kurs
+                            </label>
+                            <select class="form-control" id="course_id" name="course_id" required>
+                                {% for course in courses %}
+                                <option value="{{ course.id }}" {{ 'selected' if course.id==teacher.course_id else ''
+                                    }}>
+                                    {{ course.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="email" class="form-label">
+                        <i class="fas fa-envelope me-2"></i>Email (Ixtiyoriy)
+                    </label>
+                    <input type="email" class="form-control" id="email" name="email"
+                        value="{{ teacher.user.email or '' }}" placeholder="Email manzilini kiriting">
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn-primary-custom flex-fill">
+                        <i class="fas fa-save me-2"></i>Ma'lumotlarni saqlash
+                    </button>
+                    <a href="{{ url_for('admin_teachers') }}" class="btn btn-outline-light">
+                        <i class="fas fa-times me-2"></i>Bekor qilish
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .modern-form {
+        max-width: 100%;
+    }
+
+    .form-group {
+        position: relative;
+    }
+
+    .form-label {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .form-control {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        color: var(--text-primary);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 20px rgba(26, 95, 79, 0.3);
+        transform: translateY(-2px);
+        background: var(--bg-card);
+    }
+
+    .form-control::placeholder {
+        color: var(--text-secondary);
+    }
+
+    .form-control[readonly] {
+        background: var(--bg-card);
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    select.form-control {
+        cursor: pointer;
+    }
+
+    select.form-control option {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+
+    .alert {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-success {
+        border-color: #28a745;
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+    }
+
+    .alert-danger {
+        border-color: #dc3545;
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+
+    .btn-outline-light {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: transparent;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-light:hover {
+        background: var(--accent);
+        color: var(--bg-primary);
+        transform: translateY(-2px);
+    }
+
+    .btn-close {
+        filter: invert(1);
+    }
+
+    .floating-element {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        background: var(--accent);
+        border-radius: 50%;
+        animation: floatElement 5s ease-in-out infinite;
+    }
+
+    @keyframes floatElement {
+
+        0%,
+        100% {
+            transform: translateY(0px) scale(1);
+            opacity: 0.6;
+        }
+
+        50% {
+            transform: translateY(-15px) scale(1.2);
+            opacity: 1;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Animate form elements
+        const formGroups = document.querySelectorAll('.form-group');
+        formGroups.forEach((group, index) => {
+            group.style.animation = `fadeIn 0.5s ease-in ${index * 0.1}s`;
+        });
+
+        // Add interactive effects to inputs
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.addEventListener('focus', function () {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+
+            input.addEventListener('blur', function () {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+
+        // Add loading state to submit button
+        document.querySelector('form').addEventListener('submit', function () {
+            const button = document.querySelector('button[type="submit"]');
+            const originalText = button.innerHTML;
+
+            button.innerHTML = '<span class="spinner"></span> Updating...';
+            button.disabled = true;
+
+            // Reset after 3 seconds (in case of error)
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 3000);
+        });
+
+        // Add password strength indicator
+        const passwordInput = document.getElementById('password');
+        passwordInput.addEventListener('input', function () {
+            const password = this.value;
+            let strength = 0;
+
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]+/)) strength++;
+            if (password.match(/[A-Z]+/)) strength++;
+            if (password.match(/[0-9]+/)) strength++;
+            if (password.match(/[$@#&!]+/)) strength++;
+
+            // You can add visual feedback here if needed
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Add Student - Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add New Student</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('teacher_students') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Students
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user-plus"></i> Student Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="full_name" class="form-label">Full Name *</label>
+                                <input type="text" class="form-control" id="full_name" name="full_name" required>
+                                <div class="form-text">Enter the student's full name.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username *</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                                <div class="form-text">Unique username for student login.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password *</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                                <div class="form-text">Password for student login.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="group_id" class="form-label">Group *</label>
+                                <select class="form-select" id="group_id" name="group_id" required>
+                                    <option value="">Select a group</option>
+                                    {% for group in groups %}
+                                    <option value="{{ group.id }}">{{ group.name }} ({{ group.students|length }} students)</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">Assign student to a group.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('teacher_students') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Create Student
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Help</h5>
+            </div>
+            <div class="card-body">
+                <h6>Student Account:</h6>
+                <ul>
+                    <li>Username must be unique</li>
+                    <li>Password should be memorable</li>
+                    <li>Student can take assigned tests</li>
+                    <li>Student can view their results</li>
+                </ul>
+                
+                <h6 class="mt-3">After Creation:</h6>
+                <p>The student will be able to:</p>
+                <ul>
+                    <li>Login with provided credentials</li>
+                    <li>View their group information</li>
+                    <li>Take tests during scheduled times</li>
+                    <li>See their test results</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

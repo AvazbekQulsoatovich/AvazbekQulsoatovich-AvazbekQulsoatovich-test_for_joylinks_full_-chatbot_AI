@@ -1,0 +1,222 @@
+{% extends "base_modern.html" %}
+
+{% block title %}{{ group.name }} - Guruh o'quvchilari{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">{{ group.name }}</h1>
+            <p class="page-subtitle">Guruhdagi o'quvchilar va testlar</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('teacher_export_group_pdf', group_id=group.id) }}" class="btn btn-outline-danger">
+                <i class="fas fa-file-pdf me-2"></i>PDF Hisobot
+            </a>
+            <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Orqaga
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stats-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="mb-1">{{ students|length }}</h3>
+                    <p class="mb-0">O'quvchilar</p>
+                </div>
+                <div class="stats-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stats-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="mb-1">{{ tests|length }}</h3>
+                    <p class="mb-0">Testlar</p>
+                </div>
+                <div class="stats-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stats-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="mb-1">{{ group.teacher.user.full_name }}</h3>
+                    <p class="mb-0">O'qituvchi</p>
+                </div>
+                <div class="stats-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="content-card">
+            <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">
+                <i class="fas fa-user-graduate me-2" style="color: var(--accent);"></i>O'quvchilar ro'yxati
+            </h5>
+            {% if students %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>F.I.O</th>
+                            <th>Username</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student, user in students %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm me-3">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-medium">{{ user.full_name }}</div>
+                                        <small class="text-muted">{{ user.username }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ user.username }}</td>
+                            <td>
+                                <span class="badge bg-success">Faol</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-user-graduate fa-2x mb-3" style="color: var(--text-secondary);"></i>
+                <p class="text-muted">Bu guruhda hali o'quvchilar yo'q.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="content-card">
+            <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">
+                <i class="fas fa-clipboard-list me-2" style="color: var(--accent);"></i>Guruh testlari
+            </h5>
+            {% if tests %}
+            <div class="list-group list-group-flush">
+                {% for test in tests %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">{{ test.title }}</h6>
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>{{ test.duration_minutes }} daqiqa
+                        </small>
+                    </div>
+                    <span class="badge bg-primary rounded-pill">Aktiv</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-clipboard-list fa-2x mb-3" style="color: var(--text-secondary);"></i>
+                <p class="text-muted">Bu guruh uchun testlar yaratilmagan.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="content-card mt-4">
+            <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">
+                <i class="fas fa-info-circle me-2" style="color: var(--accent);"></i>Guruh ma'lumoti
+            </h5>
+            <div class="info-section">
+                <div class="info-item">
+                    <label>Guruh nomi</label>
+                    <span>{{ group.name }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Kurs</label>
+                    <span>{{ group.teacher.course.name }}</span>
+                </div>
+                <div class="info-item">
+                    <label>O'qituvchi</label>
+                    <span>{{ group.teacher.user.full_name }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-sm {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--bg-primary);
+        font-size: 14px;
+    }
+
+    .table {
+        background: var(--bg-card);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .table th {
+        background: var(--bg-secondary);
+        border: none;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    .table td {
+        border: none;
+        border-bottom: 1px solid var(--border);
+        color: var(--text-primary);
+        background: var(--bg-card) !important;
+    }
+
+    .table-hover tbody tr:hover {
+        background: var(--bg-secondary) !important;
+    }
+
+    .table-hover tbody tr {
+        background: var(--bg-card) !important;
+    }
+
+    .list-group-item {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        color: var(--text-primary);
+    }
+
+    .list-group-item:hover {
+        background: var(--bg-secondary);
+    }
+
+    .badge {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+</style>
+{% endblock %}

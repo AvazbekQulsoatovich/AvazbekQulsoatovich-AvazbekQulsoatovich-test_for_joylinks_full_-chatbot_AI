@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Joylinks IT Ta'lim Tizimi{% endblock %}</title>
+
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <style>
+        :root {
+            --bg-primary: #05070a; 
+            --bg-secondary: #0d1117; 
+            --bg-card: rgba(17, 22, 32, 0.9);
+            --accent: #00f5a0; 
+            --accent-blue: #3b82f6;
+            --accent-purple: #a855f7;
+            --accent-red: #ff4757;
+            --text-primary: #ffffff;
+            --text-secondary: #a0aec0;
+            --border: rgba(255, 255, 255, 0.08);
+            --sidebar-width: 280px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(0, 245, 160, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
+            color: var(--text-primary) !important;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Global Text Contrast Fix */
+        h1, h2, h3, h4, h5, h6, p, span, div, td, th, strong, a:not(.btn) {
+            color: var(--text-primary) !important;
+        }
+        
+        .text-secondary, .text-muted {
+            color: rgba(255, 255, 255, 0.6) !important;
+        }
+
+        .content-card-premium {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Enhanced Icon Boxes */
+        .icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: var(--transition);
+        }
+        .icon-emerald { background: rgba(0, 245, 160, 0.15); color: #00f5a0; border: 1px solid rgba(0, 245, 160, 0.3); }
+        .icon-blue { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .icon-purple { background: rgba(168, 85, 247, 0.15); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.3); }
+
+        /* User Info Styles */
+        .user-info {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+        }
+
+        .user-details { flex: 1; }
+        .user-name { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem; }
+        .user-role { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        /* Table Contrast Fix */
+        .table {
+            --bs-table-bg: transparent !important;
+            --bs-table-color: var(--text-primary) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border) !important;
+        }
+        .table td, .table th {
+            background-color: transparent !important;
+            border-color: var(--border) !important;
+            padding: 1rem 1.25rem !important;
+            vertical-align: middle;
+        }
+        .table thead th {
+            background: rgba(255,255,255,0.03) !important;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+        }
+
+        /* Sidebar Navigation Vibrant Styles */
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: #e2e8f0;
+            text-decoration: none;
+            padding: 16px 24px;
+            margin: 8px 15px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-link i {
+            font-size: 1.3rem;
+            margin-right: 18px;
+            width: 24px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        /* Distinct Colors for Sections */
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            transform: scale(1.02);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--accent), #059669);
+            color: #000 !important;
+            box-shadow: 0 10px 25px rgba(0, 245, 160, 0.3);
+            font-weight: 700;
+        }
+
+        /* Icon Colors based on category */
+        .nav-link[href*="dashboard"] i { color: #38bdf8; } 
+        .nav-link[href*="analytics"] i { color: #fbbf24; } 
+        .nav-link[href*="courses"] i { color: #818cf8; } 
+        .nav-link[href*="students"] i { color: #34d399; } 
+        .nav-link[href*="teachers"] i { color: #f472b6; } 
+        .nav-link[href*="results"] i { color: #fb7185; } 
+        .nav-link[href*="tests"] i { color: #a78bfa; } 
+        .nav-link[href*="groups"] i { color: #2dd4bf; } 
+
+        /* Global Calendar/Time Picker Fix for Dark Mode */
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            filter: invert(1) brightness(2);
+            cursor: pointer;
+        }
+        
+        input[type="datetime-local"], input[type="date"], input[type="time"] {
+            color-scheme: dark;
+        }
+
+        .nav-link.active i { color: #000 !important; }
+
+        /* Logout Button Fixed */
+        .logout-btn-container {
+            position: absolute;
+            bottom: 25px;
+            width: 100%;
+            padding: 0 15px;
+        }
+
+        .logout-link {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            text-decoration: none;
+            border-radius: 14px;
+            font-weight: 700;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            transition: var(--transition);
+        }
+
+        .logout-link:hover {
+            background: #ef4444;
+            color: #fff;
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .logout-link i { margin-right: 15px; font-size: 1.2rem; }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            z-index: 1000;
+            transition: var(--transition);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            overflow-y: auto;
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 1rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar" style="background: var(--bg-secondary); border-right: 1px solid var(--border); width: var(--sidebar-width); height: 100vh; position: fixed; left: 0; top: 0; z-index: 1000;">
+        <div class="sidebar-header" style="padding: 30px 20px; text-align: center; border-bottom: 1px solid var(--border);">
+            <div class="logo" style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent), #059669); border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; box-shadow: 0 10px 20px rgba(0, 245, 160, 0.2);">
+                <i class="fas fa-graduation-cap" style="font-size: 1.5rem; color: #000;"></i>
+            </div>
+            <h3 style="font-size: 1.4rem; font-weight: 800; color: #fff; margin: 0;">Joylinks IT</h3>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 5px;">Ta'lim Tizimi</p>
+            
+            {% if current_user.is_authenticated %}
+            <div class="user-info-sidebar" style="margin-top: 25px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 12px; text-align: left;">
+                <div class="avatar-circle" style="width: 42px; height: 42px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #38bdf8;">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div style="overflow: hidden;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ current_user.full_name }}</div>
+                    <div style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase;">Admin</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <nav class="sidebar-nav" style="padding: 20px 0;">
+            <div class="nav-section">
+                <div style="padding: 0 25px; margin-bottom: 10px; font-size: 0.7rem; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.1em;">Menu</div>
+                
+                {% if current_user.role == 'admin' %}
+                    <a href="{{ url_for('admin_dashboard') }}" class="nav-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+                        <i class="fas fa-th-large"></i><span>Boshqaruv Paneli</span>
+                    </a>
+                    <a href="{{ url_for('admin_analytics') }}" class="nav-link {% if request.endpoint == 'admin_analytics' %}active{% endif %}">
+                        <i class="fas fa-chart-pie"></i><span>Analitika</span>
+                    </a>
+                    <a href="{{ url_for('admin_courses') }}" class="nav-link {% if request.endpoint == 'admin_courses' %}active{% endif %}">
+                        <i class="fas fa-book-bookmark"></i><span>Kurslar</span>
+                    </a>
+                    <a href="{{ url_for('admin_students') }}" class="nav-link {% if request.endpoint == 'admin_students' %}active{% endif %}">
+                        <i class="fas fa-user-graduate"></i><span>O'quvchilar</span>
+                    </a>
+                    <a href="{{ url_for('admin_teachers') }}" class="nav-link {% if request.endpoint == 'admin_teachers' %}active{% endif %}">
+                        <i class="fas fa-chalkboard-user"></i><span>O'qituvchilar</span>
+                    </a>
+                    <a href="{{ url_for('admin_results') }}" class="nav-link {% if request.endpoint == 'admin_results' %}active{% endif %}">
+                        <i class="fas fa-poll-h"></i><span>Natijalar</span>
+                    </a>
+                    <a href="{{ url_for('admin_tests') }}" class="nav-link {% if request.endpoint == 'admin_tests' %}active{% endif %}">
+                        <i class="fas fa-clipboard-question"></i><span>Testlar</span>
+                    </a>
+                    <a href="{{ url_for('admin_groups') }}" class="nav-link {% if request.endpoint == 'admin_groups' %}active{% endif %}">
+                        <i class="fas fa-users-rectangle"></i><span>Guruhlar</span>
+                    </a>
+                {% elif current_user.role == 'student' %}
+                    <a href="{{ url_for('student_dashboard') }}" class="nav-link {% if request.endpoint == 'student_dashboard' %}active{% endif %}">
+                        <i class="fas fa-home"></i><span>Mening Dashboardim</span>
+                    </a>
+                    <a href="{{ url_for('student_results') }}" class="nav-link {% if request.endpoint == 'student_results' %}active{% endif %}">
+                        <i class="fas fa-star"></i><span>Mening Natijalarim</span>
+                    </a>
+                {% elif current_user.role == 'teacher' %}
+                    <a href="{{ url_for('teacher_dashboard') }}" class="nav-link {% if request.endpoint == 'teacher_dashboard' %}active{% endif %}">
+                        <i class="fas fa-chalkboard"></i><span>O'qituvchi Paneli</span>
+                    </a>
+                {% endif %}
+            </div>
+        </nav>
+
+        <div class="logout-btn-container">
+            <a href="{{ url_for('logout') }}" class="logout-link">
+                <i class="fas fa-power-off"></i><span>Tizimdan chiqish</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert"
+            style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); border-radius: 12px; margin-bottom: 1rem;">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmDelete(title, text, formId) {
+            Swal.fire({
+                title: title || 'Aniqmi?',
+                text: text || "O'chirilgan ma'lumotni ortga qaytarib bo'lmaydi!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ha, o\'chir!',
+                cancelButtonText: 'Bekor qilish',
+                background: '#0a0a0a',
+                color: '#ffffff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(formId).submit();
+                }
+            })
+        }
+        
+        // Progress bar utility to avoid CSS validation errors
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('[data-progress]').forEach(el => {
+                const progress = el.getAttribute('data-progress');
+                el.style.width = progress + '%';
+            });
+        });
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function (event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+
+            if (window.innerWidth <= 768 &&
+                !sidebar.contains(event.target) &&
+                !toggle.contains(event.target) &&
+                sidebar.classList.contains('show')) {
+                sidebar.classList.remove('show');
+            }
+        });
+
+        // Add interactive animations
+        document.addEventListener('DOMContentLoaded', function () {
+            // Animate stats cards on scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'slideUp 0.6s ease-out';
+                    }
+                });
+            });
+
+            document.querySelectorAll('.stats-card').forEach(card => {
+                observer.observe(card);
+            });
+        });
+    </script>
+
+    <!-- AI Chatbot Widget -->
+    {% if current_user.is_authenticated %}
+    <div id="chatbot-widget">
+        <!-- Chat Toggle Button -->
+        <button id="chat-toggle" onclick="toggleChat()" title="AI Yordamchi">
+            <i class="fas fa-robot" id="chat-icon"></i>
+            <span id="chat-badge" style="display:none;"></span>
+        </button>
+
+        <!-- Chat Window -->
+        <div id="chat-window" style="display: none;">
+            <div id="chat-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div id="chat-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div>
+                        <div id="chat-title">JoyBot AI</div>
+                        <div id="chat-status">Yordamchi tayyor</div>
+                    </div>
+                </div>
+                <button id="chat-close" onclick="toggleChat()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="chat-messages">
+                <div class="chat-msg bot-msg">
+                    <div class="msg-avatar"><i class="fas fa-robot"></i></div>
+                    <div class="msg-content">
+                        <div class="msg-text">Assalomu alaykum, <strong>{{ current_user.full_name }}</strong>! 👋<br>
+                        Men <strong>JoyBot</strong> — Joylinks IT tizimining AI yordamchisiman.<br><br>
+                        Sizga quyidagilarda yordam bera olaman:<br>
+                        📊 Natijalar tahlili<br>
+                        📈 Guruhlar statistikasi<br>
+                        💡 Ta'lim maslahatlari<br><br>
+                        Savolingizni yozing!</div>
+                    </div>
+                </div>
+            </div>
+            <div id="chat-input-area">
+                <div id="chat-typing" style="display: none;">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-text">JoyBot yozmoqda...</span>
+                </div>
+                <form id="chat-form" onsubmit="sendMessage(event)">
+                    <input type="text" id="chat-input" placeholder="Savolingizni yozing..." autocomplete="off">
+                    <button type="submit" id="chat-send">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Chat Toggle Button */
+        #chat-toggle {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a5f4f, #0f4a3a);
+            border: 2px solid rgba(26, 95, 79, 0.5);
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 32px rgba(26, 95, 79, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 8px 32px rgba(26, 95, 79, 0.4); }
+            50% { box-shadow: 0 8px 48px rgba(26, 95, 79, 0.7); }
+        }
+
+        #chat-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 40px rgba(26, 95, 79, 0.6);
+        }
+
+        #chat-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 16px;
+            height: 16px;
+            background: #ff4444;
+            border-radius: 50%;
+            font-size: 0.6rem;
+        }
+
+        /* Chat Window */
+        #chat-window {
+            position: fixed;
+            bottom: 96px;
+            right: 24px;
+            width: 400px;
+            max-width: calc(100vw - 48px);
+            height: 550px;
+            max-height: calc(100vh - 140px);
+            background: #0a0a0a;
+            border: 1px solid #1a5f4f;
+            border-radius: 20px;
+            z-index: 9998;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(26,95,79,0.3);
+            animation: chatSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes chatSlideUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Chat Header */
+        #chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #0f1a17, #0a0a0a);
+            border-bottom: 1px solid #1a5f4f;
+        }
+
+        #chat-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #1a5f4f, #0f4a3a);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: white;
+        }
+
+        #chat-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #fff;
+        }
+
+        #chat-status {
+            font-size: 0.7rem;
+            color: #4ade80;
+        }
+
+        #chat-close {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        #chat-close:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        /* Chat Messages */
+        #chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            scrollbar-width: thin;
+            scrollbar-color: #1a5f4f #0a0a0a;
+        }
+
+        #chat-messages::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #chat-messages::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        #chat-messages::-webkit-scrollbar-thumb {
+            background: #1a5f4f;
+            border-radius: 4px;
+        }
+
+        .chat-msg {
+            display: flex;
+            gap: 8px;
+            max-width: 90%;
+            animation: msgFade 0.3s ease-out;
+        }
+
+        @keyframes msgFade {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bot-msg { align-self: flex-start; }
+        .user-msg { align-self: flex-end; flex-direction: row-reverse; }
+
+        .msg-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .bot-msg .msg-avatar {
+            background: linear-gradient(135deg, #1a5f4f, #0f4a3a);
+            color: white;
+        }
+
+        .user-msg .msg-avatar {
+            background: #333;
+            color: #fff;
+        }
+
+        .msg-content {
+            flex: 1;
+        }
+
+        .msg-text {
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .bot-msg .msg-text {
+            background: #111;
+            color: #e0e0e0;
+            border: 1px solid #1a1a1a;
+            border-top-left-radius: 4px;
+        }
+
+        .user-msg .msg-text {
+            background: linear-gradient(135deg, #1a5f4f, #0f4a3a);
+            color: white;
+            border-top-right-radius: 4px;
+        }
+
+        .msg-text strong {
+            color: #4ade80;
+        }
+
+        .user-msg .msg-text strong {
+            color: #fff;
+        }
+
+        /* Typing Indicator */
+        #chat-typing {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 16px;
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #1a5f4f;
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        .typing-text {
+            margin-left: 4px;
+        }
+
+        /* Chat Input */
+        #chat-input-area {
+            border-top: 1px solid #1a1a1a;
+            background: #050505;
+        }
+
+        #chat-form {
+            display: flex;
+            padding: 12px 16px;
+            gap: 8px;
+        }
+
+        #chat-input {
+            flex: 1;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 10px 16px;
+            color: #fff;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        #chat-input:focus {
+            border-color: #1a5f4f;
+            box-shadow: 0 0 0 2px rgba(26, 95, 79, 0.2);
+        }
+
+        #chat-input::placeholder {
+            color: #555;
+        }
+
+        #chat-send {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #1a5f4f, #0f4a3a);
+            border: none;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        #chat-send:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(26, 95, 79, 0.4);
+        }
+
+        #chat-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @media (max-width: 500px) {
+            #chat-window {
+                right: 8px;
+                bottom: 80px;
+                width: calc(100vw - 16px);
+                height: calc(100vh - 120px);
+                border-radius: 16px;
+            }
+            #chat-toggle {
+                right: 16px;
+                bottom: 16px;
+                width: 52px;
+                height: 52px;
+            }
+        }
+    </style>
+
+    <script>
+    let chatOpen = false;
+
+    function toggleChat() {
+        const win = document.getElementById('chat-window');
+        const btn = document.getElementById('chat-toggle');
+        const icon = document.getElementById('chat-icon');
+        chatOpen = !chatOpen;
+        
+        if (chatOpen) {
+            win.style.display = 'flex';
+            icon.className = 'fas fa-times';
+            btn.style.animation = 'none';
+            document.getElementById('chat-input').focus();
+        } else {
+            win.style.display = 'none';
+            icon.className = 'fas fa-robot';
+            btn.style.animation = 'pulse-glow 2s ease-in-out infinite';
+        }
+    }
+
+    function formatMessage(text) {
+        // Simple markdown-like formatting
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        text = text.replace(/`(.*?)`/g, '<code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;font-size:0.8rem;">$1</code>');
+        text = text.replace(/\n/g, '<br>');
+        return text;
+    }
+
+    function addMessage(text, isBot) {
+        const container = document.getElementById('chat-messages');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `chat-msg ${isBot ? 'bot-msg' : 'user-msg'}`;
+        
+        const icon = isBot ? 'fa-robot' : 'fa-user';
+        const formattedText = isBot ? formatMessage(text) : text;
+        
+        msgDiv.innerHTML = `
+            <div class="msg-avatar"><i class="fas ${icon}"></i></div>
+            <div class="msg-content">
+                <div class="msg-text">${formattedText}</div>
+            </div>
+        `;
+        
+        container.appendChild(msgDiv);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function setTyping(show) {
+        document.getElementById('chat-typing').style.display = show ? 'flex' : 'none';
+        if (show) {
+            document.getElementById('chat-status').textContent = 'Yozmoqda...';
+            document.getElementById('chat-status').style.color = '#fbbf24';
+        } else {
+            document.getElementById('chat-status').textContent = 'Yordamchi tayyor';
+            document.getElementById('chat-status').style.color = '#4ade80';
+        }
+    }
+
+    async function sendMessage(e) {
+        e.preventDefault();
+        const input = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('chat-send');
+        const message = input.value.trim();
+        
+        if (!message) return;
+        
+        // Add user message
+        addMessage(message, false);
+        input.value = '';
+        sendBtn.disabled = true;
+        setTyping(true);
+        
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message })
+            });
+            
+            const data = await response.json();
+            setTyping(false);
+            addMessage(data.response || 'Xatolik yuz berdi', true);
+        } catch (error) {
+            setTyping(false);
+            addMessage('⚠️ Serverga ulanib bo\'lmadi. Iltimos, keyinroq urinib ko\'ring.', true);
+        }
+        
+        sendBtn.disabled = false;
+        input.focus();
+    }
+
+    // Enter to send, Shift+Enter for new line
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatInput = document.getElementById('chat-input');
+        if (chatInput) {
+            chatInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+                }
+            });
+        }
+    });
+    </script>
+    {% endif %}
+
+</body>
+
+</html>

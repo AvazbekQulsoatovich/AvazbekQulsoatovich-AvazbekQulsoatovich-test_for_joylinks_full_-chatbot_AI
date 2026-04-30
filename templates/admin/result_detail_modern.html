@@ -1,0 +1,130 @@
+{% extends "base_modern.html" %}
+
+{% block title %}Natija Tafsilotlari - Joylinks IT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Natija Tafsilotlari</h1>
+            <p class="page-subtitle">{{ user.full_name }} ning {{ test.title }} bo'yicha natijasi</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin_export_result_pdf', result_id=result.id) }}" class="btn-primary-custom">
+                <i class="fas fa-file-pdf me-2"></i>PDF Yuklab olish
+            </a>
+            <a href="{{ url_for('admin_results') }}" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left me-2"></i>Orqaga
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="content-card">
+            <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">O'quvchi ma'lumotlari</h5>
+            <div class="student-info">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="student-avatar me-3" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0" style="color: var(--text-primary);">{{ user.full_name }}</h4>
+                        <p class="text-secondary mb-0">@{{ user.username }}</p>
+                    </div>
+                </div>
+                <div class="info-item mb-2">
+                    <span class="text-secondary">Guruh:</span>
+                    <span class="float-end fw-bold">{{ group.name }}</span>
+                </div>
+                <div class="info-item mb-2">
+                    <span class="text-secondary">Test:</span>
+                    <span class="float-end fw-bold">{{ test.title }}</span>
+                </div>
+                <div class="info-item mb-2">
+                    <span class="text-secondary">Sana:</span>
+                    <span class="float-end">{{ result.submitted_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                <hr style="border-color: var(--border);">
+                <div class="score-summary text-center">
+                    <div class="score-circle mb-3">
+                        <span class="score-value">{{ result.percentage }}%</span>
+                    </div>
+                    <div class="badge {{ 'bg-success' if result.percentage >= 60 else 'bg-danger' }} p-2 w-100">
+                        {{ "O'tdi" if result.percentage >= 60 else "O'tolmadi" }}
+                    </div>
+                    <p class="mt-2 text-secondary">{{ result.score }} / {{ result.total_questions }} ta to'g'ri</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="content-card">
+            <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">Savollar va Javoblar</h5>
+            <div class="questions-list">
+                {% for question in questions %}
+                {% set student_answer = answers.get(question.id|string) %}
+                {% set is_correct = student_answer == question.correct_answer %}
+                <div class="question-detail-item mb-4 p-3 rounded"
+                    style="background: var(--bg-secondary); border: 1px solid {{ 'rgba(40,167,69,0.3)' if is_correct else 'rgba(220,53,69,0.3)' }};">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-bold" style="color: var(--text-primary);">{{ loop.index }}. {{
+                            question.question_text }}</span>
+                        <i
+                            class="fas {{ 'fa-check-circle text-success' if is_correct else 'fa-times-circle text-danger' }} h5"></i>
+                    </div>
+                    <div class="options-grid row g-2">
+                        {% for opt, label in [('A', question.option_a), ('B', question.option_b), ('C',
+                        question.option_c), ('D', question.option_d)] %}
+                        <div class="col-md-6">
+                            <div class="option-box p-2 rounded {{ 'bg-success text-white' if opt == question.correct_answer else ('bg-danger text-white' if opt == student_answer and not is_correct else 'bg-dark opacity-50') }}"
+                                style="font-size: 0.9rem;">
+                                <strong>{{ opt }}:</strong> {{ label }}
+                                {% if opt == student_answer %}
+                                <span class="float-end"><i class="fas {{ 'fa-user' }}"></i></span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .score-circle {
+        width: 120px;
+        height: 120px;
+        border: 5px solid var(--accent);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+
+    .score-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .student-avatar {
+        background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+        color: var(--bg-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .option-box {
+        border: 1px solid transparent;
+    }
+</style>
+{% endblock %}

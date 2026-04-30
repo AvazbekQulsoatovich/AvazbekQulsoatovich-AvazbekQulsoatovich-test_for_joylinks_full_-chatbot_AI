@@ -1,0 +1,226 @@
+{% extends "base_modern.html" %}
+
+{% block title %}O'quvchini Tahrirlash - Joylinks IT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">O'quvchini Tahrirlash</h1>
+            <p class="page-subtitle">{{ user.full_name }} ma'lumotlarini yangilash</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin_students') }}" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left me-2"></i>Orqaga
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="content-card">
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="fas fa-user me-2"></i>To'liq ism
+                        </label>
+                        <input type="text" class="form-control" name="full_name" required value="{{ user.full_name }}"
+                            placeholder="Masalan: Aliyev Vali">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="fas fa-id-card me-2"></i>Login
+                        </label>
+                        <input type="text" class="form-control" name="username" required value="{{ user.username }}"
+                            placeholder="Masalan: vali_aliyev">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="fas fa-lock me-2"></i>Yangi Parol
+                        </label>
+                        <input type="password" class="form-control" name="password"
+                            placeholder="Bo'sh qoldiring agar o'zgartirmoqchi bo'lmasangiz">
+                        <small class="text-muted">Faqat parolni o'zgartirmoqchi bo'lsangiz kiriting</small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="fas fa-users me-2"></i>Guruh
+                        </label>
+                        <select class="form-control" name="group_id" required>
+                            <option value="">Guruhni tanlang</option>
+                            {% for group, teacher, teacher_user in groups %}
+                            <option value="{{ group.id }}" {% if student.group_id==group.id %}selected{% endif %}>
+                                {{ group.name }} ({{ teacher_user.full_name }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Eslatma:</strong> Parol maydonini bo'sh qoldirsangiz, eski parol o'zgarishsiz qoladi.
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn-primary-custom">
+                        <i class="fas fa-save me-2"></i>O'zgarishlarni saqlash
+                    </button>
+                    <a href="{{ url_for('admin_students') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Bekor qilish
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-label {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .form-control {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        background: var(--bg-card);
+        border-color: var(--accent);
+        color: var(--text-primary);
+        box-shadow: 0 0 0 0.2rem rgba(26, 95, 79, 0.25);
+    }
+
+    .form-control::placeholder {
+        color: var(--text-secondary);
+    }
+
+    .text-muted {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    .alert-info {
+        background: rgba(23, 162, 184, 0.1);
+        border: 1px solid rgba(23, 162, 184, 0.3);
+        color: #17a2b8;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    .btn-primary-custom {
+        background: var(--accent);
+        color: var(--bg-primary);
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        font-weight: 500;
+    }
+
+    .btn-primary-custom:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+        color: var(--bg-primary);
+    }
+
+    .btn-outline-light {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: transparent;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        font-weight: 500;
+    }
+
+    .btn-outline-light:hover {
+        background: var(--accent);
+        color: var(--bg-primary);
+        transform: translateY(-2px);
+    }
+
+    .btn-outline-secondary {
+        border-color: var(--border);
+        color: var(--text-secondary);
+        background: transparent;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        font-weight: 500;
+    }
+
+    .btn-outline-secondary:hover {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        transform: translateY(-2px);
+    }
+
+    .content-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 2rem;
+        backdrop-filter: blur(20px);
+    }
+
+    .content-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        animation: shimmer 2s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+
+        0%,
+        100% {
+            transform: translateX(-100%);
+        }
+
+        50% {
+            transform: translateX(100%);
+        }
+    }
+
+    .content-card:hover {
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        border-color: var(--accent);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const card = document.querySelector('.content-card');
+        card.style.animation = 'fadeIn 0.5s ease-in';
+    });
+</script>
+{% endblock %}

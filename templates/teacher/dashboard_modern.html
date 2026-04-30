@@ -1,0 +1,225 @@
+{% extends "base_modern.html" %}
+
+{% block title %}O'qituvchi Paneli - Joylinks IT{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">O'qituvchi Paneli</h1>
+            <p class="page-subtitle">Guruhlaringiz va o'quvchilaringiz haqida ma'lumot</p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-xl-4">
+        <div class="stats-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="mb-1">{{ groups|length }}</h3>
+                    <p class="mb-0">Guruhlar</p>
+                </div>
+                <div class="stats-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-4">
+        <div class="stats-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="mb-1">{{ students_count }}</h3>
+                    <p class="mb-0">O'quvchilar</p>
+                </div>
+                <div class="stats-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-4">
+        <div class="stats-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="mb-1">{{ tests_count }}</h3>
+                    <p class="mb-0">Testlar</p>
+                </div>
+                <div class="stats-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="content-card">
+            <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">
+                <i class="fas fa-users me-2" style="color: var(--accent);"></i>Mening Guruhlarim
+            </h5>
+            {% if groups %}
+            <div class="row g-3">
+                {% for group in groups %}
+                <div class="col-md-6">
+                    <a href="{{ url_for('teacher_group_students', group_id=group.id) }}" class="text-decoration-none">
+                        <div class="group-card">
+                            <div class="group-header">
+                                <div class="group-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h6 style="color: var(--text-primary);">{{ group.name }}</h6>
+                            </div>
+                            <div class="group-stats">
+                                <span class="student-count">{{ group.students|length }} o'quvchi</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-users fa-2x mb-3" style="color: var(--text-secondary);"></i>
+                <p class="text-muted">Sizda hali guruhlar yo'q. Admin bilan bog'laning.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="content-card">
+            <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">
+                <i class="fas fa-info-circle me-2" style="color: var(--accent);"></i>Ma'lumot
+            </h5>
+            <div class="info-section">
+                <div class="info-item">
+                    <label>F.I.O</label>
+                    <span>{{ current_user.full_name }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Login</label>
+                    <span>{{ current_user.username }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Lavozim</label>
+                    <span>O'qituvchi</span>
+                </div>
+                <div class="info-item">
+                    <label>Kurs</label>
+                    <span>{{ teacher.course.name }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.group-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg-primary);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.group-item {
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.group-item:hover {
+    transform: translateX(4px);
+    border-color: var(--accent);
+}
+
+.activity-item {
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+    transform: translateX(4px);
+    border-color: var(--accent);
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--bg-card);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.btn-outline-light {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.btn-outline-light:hover {
+    background: var(--accent);
+    color: var(--bg-primary);
+    transform: translateY(-2px);
+}
+
+.btn-outline-success {
+    border-color: #28a745;
+    color: #28a745;
+}
+
+.btn-outline-success:hover {
+    background: #28a745;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.floating-element {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: floatElement 5s ease-in-out infinite;
+}
+
+@keyframes floatElement {
+    0%, 100% { transform: translateY(0px) scale(1); opacity: 0.6; }
+    50% { transform: translateY(-15px) scale(1.2); opacity: 1; }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const items = document.querySelectorAll('.group-item, .activity-item');
+    items.forEach((item, index) => {
+        item.style.animation = `fadeIn 0.5s ease-in ${index * 0.1}s`;
+    });
+
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px) scale(1.05)';
+        });
+        btn.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+});
+</script>
+{% endblock %}

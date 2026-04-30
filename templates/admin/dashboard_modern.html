@@ -1,0 +1,285 @@
+{% extends "base_modern.html" %}
+
+{% block title %}Admin Boshqaruv Paneli - Joylinks IT{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1 class="page-title text-gradient"><i class="fas fa-shield-alt me-2"></i>Admin Boshqaruv Paneli</h1>
+            <p class="page-subtitle">Ta'lim platformangizni samarali boshqaring</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ url_for('admin_add_teacher') }}" class="btn-action-premium">
+                <i class="fas fa-user-tie"></i> <span>O'qituvchi</span>
+            </a>
+            <a href="{{ url_for('admin_add_course') }}" class="btn-action-premium">
+                <i class="fas fa-graduation-cap"></i> <span>Kurs</span>
+            </a>
+            <a href="{{ url_for('admin_add_group') }}" class="btn-action-premium">
+                <i class="fas fa-users"></i> <span>Guruh</span>
+            </a>
+            <a href="{{ url_for('admin_add_student') }}" class="btn-action-premium">
+                <i class="fas fa-user-graduate"></i> <span>O'quvchi</span>
+            </a>
+            <a href="{{ url_for('admin_add_test') }}" class="btn-action-premium btn-accent-glow">
+                <i class="fas fa-plus-circle"></i> <span>Yangi Test</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Dashboard Grid -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="admin-stats-card card-cyan">
+            <div class="stats-body">
+                <div class="stats-label">Jami O'quvchilar</div>
+                <div class="stats-number">{{ total_students }}</div>
+                <div class="stats-trend"><i class="fas fa-arrow-up"></i> +5% bu oy</div>
+            </div>
+            <div class="stats-icon-bg">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="admin-stats-card card-purple">
+            <div class="stats-body">
+                <div class="stats-label">O'qituvchilar</div>
+                <div class="stats-number">{{ total_teachers }}</div>
+                <div class="stats-trend">Malakali jamoa</div>
+            </div>
+            <div class="stats-icon-bg">
+                <i class="fas fa-user-tie"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="admin-stats-card card-orange">
+            <div class="stats-body">
+                <div class="stats-label">Guruhlar / Kurslar</div>
+                <div class="stats-number">{{ total_groups }} / {{ total_courses }}</div>
+                <div class="stats-trend">Faol yo'nalishlar</div>
+            </div>
+            <div class="stats-icon-bg">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="admin-stats-card card-green">
+            <div class="stats-body">
+                <div class="stats-label">Mavjud Testlar</div>
+                <div class="stats-number">{{ total_tests }}</div>
+                <div class="stats-trend">Bilim nazorati</div>
+            </div>
+            <div class="stats-icon-bg">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Activity Feed -->
+    <div class="col-lg-8">
+        <div class="content-card-premium">
+            <div class="card-header-flex mb-4">
+                <h5 class="card-title-neon mb-0"><i class="fas fa-stream me-2"></i>So'nggi Faoliyat</h5>
+                <span class="badge-live"><i class="fas fa-circle blink"></i> LIVE</span>
+            </div>
+            <div class="admin-activity-list">
+                <div class="admin-activity-item">
+                    <div class="act-icon-box bg-soft-cyan">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="act-details">
+                        <div class="act-title">Yangi o'quvchi ro'yxatdan o'tdi</div>
+                        <div class="act-meta">Adham To'rayev — {{ student.group.name if student and student.group else 'Guruhsiz' }}</div>
+                    </div>
+                    <div class="act-time">2 daq avval</div>
+                </div>
+                
+                <div class="admin-activity-item">
+                    <div class="act-icon-box bg-soft-purple">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="act-details">
+                        <div class="act-title">Test yakunlandi</div>
+                        <div class="act-meta">Sdfgghjksfdd testi topshirildi</div>
+                    </div>
+                    <div class="act-time">5 daq avval</div>
+                </div>
+                
+                <div class="admin-activity-item">
+                    <div class="act-icon-box bg-soft-orange">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="act-details">
+                        <div class="act-title">Yangi kurs qo'shildi</div>
+                        <div class="act-meta">"Python Backend" kursi yaratildi</div>
+                    </div>
+                    <div class="act-time">1 soat avval</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar Actions & Status -->
+    <div class="col-lg-4">
+        <div class="content-card-premium mb-4">
+            <h5 class="card-title-neon mb-4"><i class="fas fa-clock me-2"></i>Tizim Vaqti</h5>
+            <div class="clock-display">
+                <div class="time-now">{{ current_time.strftime('%H:%M') }}</div>
+                <div class="date-now">{{ current_time.strftime('%d-%B, %Y') }}</div>
+            </div>
+        </div>
+
+        <div class="content-card-premium">
+            <h5 class="card-title-neon mb-4"><i class="fas fa-server me-2"></i>Tizim Holati</h5>
+            <div class="status-monitor">
+                <div class="monitor-item">
+                    <div class="m-label">Ma'lumotlar bazasi</div>
+                    <div class="m-status-text text-green">Onlayn</div>
+                    <div class="m-bar"><div class="m-fill bg-green" style="width: 100%"></div></div>
+                </div>
+                <div class="monitor-item">
+                    <div class="m-label">Server yuklamasi</div>
+                    <div class="m-status-text text-orange">65% (O'rtacha)</div>
+                    <div class="m-bar"><div class="m-fill bg-orange" style="width: 65%"></div></div>
+                </div>
+                <div class="monitor-item">
+                    <div class="m-label">Xotira (Storage)</div>
+                    <div class="m-status-text text-green">Yaxshi</div>
+                    <div class="m-bar"><div class="m-fill bg-green" style="width: 35%"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Premium Admin UI */
+    .text-gradient {
+        background: linear-gradient(90deg, #fff, #10b981, #fff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-size: 200% auto;
+        animation: shine 5s linear infinite;
+    }
+
+    .btn-action-premium {
+        background: #1a1d21;
+        border: 1px solid #333;
+        color: #c9d1d9;
+        padding: 0.6rem 1.2rem;
+        border-radius: 12px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-action-premium:hover {
+        background: #21262d;
+        border-color: #10b981;
+        color: #10b981;
+        transform: translateY(-2px);
+    }
+    .btn-accent-glow {
+        background: #10b981;
+        color: #000 !important;
+        border: none;
+    }
+    .btn-accent-glow:hover {
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Admin Stats Cards */
+    .admin-stats-card {
+        padding: 1.5rem;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+    .admin-stats-card:hover { transform: translateY(-5px); }
+    
+    .card-cyan { background: linear-gradient(135deg, #0d1117, #0a192f); border-left: 4px solid #00d2ff; }
+    .card-purple { background: linear-gradient(135deg, #0d1117, #1a1033); border-left: 4px solid #a855f7; }
+    .card-orange { background: linear-gradient(135deg, #0d1117, #2d1a0a); border-left: 4px solid #f97316; }
+    .card-green { background: linear-gradient(135deg, #0d1117, #061a14); border-left: 4px solid #10b981; }
+
+    .stats-label { color: #8b949e; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
+    .stats-number { color: #fff; font-size: 2rem; font-weight: 800; margin: 0.5rem 0; }
+    .stats-trend { font-size: 0.75rem; color: #10b981; }
+
+    .stats-icon-bg {
+        position: absolute;
+        right: -10px;
+        bottom: -10px;
+        font-size: 4rem;
+        opacity: 0.05;
+        color: #fff;
+        transform: rotate(-15deg);
+    }
+
+    /* Activity List */
+    .admin-activity-item {
+        background: rgba(255,255,255,0.02);
+        padding: 1rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+    }
+    .admin-activity-item:hover {
+        background: rgba(255,255,255,0.04);
+        border-color: #333;
+        transform: translateX(5px);
+    }
+    .act-icon-box {
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    .bg-soft-cyan { background: rgba(0,210,255,0.1); color: #00d2ff; }
+    .bg-soft-purple { background: rgba(168,85,247,0.1); color: #a855f7; }
+    .bg-soft-orange { background: rgba(249,115,22,0.1); color: #f97316; }
+
+    .act-title { color: #fff; font-weight: 600; font-size: 0.95rem; }
+    .act-meta { color: #8b949e; font-size: 0.8rem; }
+    .act-time { margin-left: auto; color: #8b949e; font-size: 0.75rem; }
+
+    /* Clock */
+    .clock-display { text-align: center; padding: 1rem 0; }
+    .time-now { font-size: 3rem; font-weight: 800; color: #fff; line-height: 1; }
+    .date-now { color: #10b981; font-weight: 600; margin-top: 0.5rem; }
+
+    /* Monitor */
+    .monitor-item { margin-bottom: 1.25rem; }
+    .m-label { color: #8b949e; font-size: 0.85rem; margin-bottom: 0.25rem; }
+    .m-status-text { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .text-green { color: #10b981; }
+    .text-orange { color: #f59e0b; }
+    .m-bar { height: 4px; background: #222; border-radius: 2px; overflow: hidden; }
+    .m-fill { height: 100%; border-radius: 2px; }
+    .bg-green { background: #10b981; }
+    .bg-orange { background: #f59e0b; }
+
+    .blink { animation: blinker 1.5s linear infinite; }
+    @keyframes blinker { 50% { opacity: 0; } }
+    .badge-live { background: rgba(239, 68, 68, 0.1); color: #ef4444; font-size: 0.7rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; }
+</style>
+{% endblock %}

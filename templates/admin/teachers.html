@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %}Teachers - Joylinks IT Test{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Teachers Management</h1>
+            <p class="page-subtitle">View and manage all teachers in the system.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('admin_add_teacher') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Add New Teacher
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-chalkboard-teacher me-2"></i>All Teachers</h5>
+    </div>
+    <div class="card-body">
+        {% if teachers %}
+        <div class="table-responsive">
+            <table class="table modern-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Teacher Info</th>
+                        <th>Username</th>
+                        <th>Course</th>
+                        <th>Groups</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for teacher, user, course in teachers %}
+                    <tr>
+                        <td><span class="badge bg-secondary">#{{ teacher.id }}</span></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                    {{ user.full_name[0].upper() }}
+                                </div>
+                                <div>
+                                    <strong>{{ user.full_name }}</strong>
+                                    <br>
+                                    <small class="text-muted">ID: {{ teacher.id }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge bg-info">{{ user.username }}</span></td>
+                        <td><span class="badge bg-primary">{{ course.name }}</span></td>
+                        <td>
+                            <span class="badge bg-success">{{ teacher.groups|length }} groups</span>
+                            {% if teacher.groups|length > 0 %}
+                                <br>
+                                <small class="text-muted">{{ teacher.groups|length }} students total</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('admin_edit_teacher', teacher_id=teacher.id) }}" class="btn btn-sm btn-outline-warning">
+                                    <i class="fas fa-edit me-1"></i>Edit
+                                </a>
+                                <button class="btn btn-sm btn-outline-danger" 
+                                        onclick="confirmDelete('{{ teacher.id }}', '{{ user.full_name }}')">
+                                    <i class="fas fa-trash me-1"></i>Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-chalkboard-teacher fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No Teachers Found</h5>
+            <p class="text-muted">Start by adding your first teacher to the system.</p>
+            <a href="{{ url_for('admin_add_teacher') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Add First Teacher
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+                    Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="teacherName"></strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> This will also delete all their groups and students.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.modern-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.modern-table thead {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+}
+
+.modern-table th {
+    border: none;
+    padding: 16px 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.modern-table tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.modern-table tbody tr:hover {
+    background: var(--gray-50);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.modern-table td {
+    padding: 16px 12px;
+    vertical-align: middle;
+    border: none;
+}
+
+.avatar-sm {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.btn-group .btn {
+    border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+}
+
+.btn-group .btn:last-child {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.btn-outline-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+}
+
+.btn-outline-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: var(--shadow-lg);
+}
+
+.modal-header {
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--gray-200);
+    border-radius: 0 0 12px 12px;
+}
+</style>
+
+<script>
+function confirmDelete(teacherId, teacherName) {
+    document.getElementById('teacherName').textContent = teacherName;
+    document.getElementById('deleteForm').action = '/admin/teachers/delete/' + teacherId;
+    
+    var modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

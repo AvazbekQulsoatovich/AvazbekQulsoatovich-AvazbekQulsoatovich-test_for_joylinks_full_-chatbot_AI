@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: joylinks_test
+      POSTGRES_USER: joylinks_user
+      POSTGRES_PASSWORD: secure_password_2024
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+    networks:
+      - joylinks-network
+
+  # Web Application
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=postgresql://joylinks_user:secure_password_2024@postgres:5432/joylinks_test
+      - SECRET_KEY=your-super-secret-production-key-change-this
+    volumes:
+      - ./uploads:/app/uploads
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - joylinks-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./static:/var/www/static:ro
+      - ./uploads:/var/www/uploads:ro
+    depends_on:
+      - web
+    restart: unless-stopped
+    networks:
+      - joylinks-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  joylinks-network:
+    driver: bridge
