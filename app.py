@@ -2158,7 +2158,7 @@ def get_system_context(user):
     elif user.role == 'admin':
         branch_id = user.branch_id
         branch = Branch.query.get(branch_id)
-        context_parts.append(f"=== ADMIN PANEL: {branch.name if branch else 'Noma\'lum'} filiali ===")
+        context_parts.append(f"=== ADMIN PANEL: {branch.name if branch else 'Nomalum'} filiali ===")
 
         st_count = db.session.query(Student).join(User).filter(User.branch_id == branch_id).count()
         tr_count = db.session.query(Teacher).join(User).filter(User.branch_id == branch_id).count()
