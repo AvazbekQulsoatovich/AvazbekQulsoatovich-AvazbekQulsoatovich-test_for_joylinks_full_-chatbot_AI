@@ -1,105 +1,94 @@
 {% extends "base_modern.html" %}
 
-{% block title %}Admin Boshqaruv Paneli - Joylinks IT{% endblock %}
+{% block title %}Super Admin Boshqaruv Paneli - Joylinks IT{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <h1 class="page-title">Super Admin Boshqaruv Paneli</h1>
-            <p class="page-subtitle">SaaS platformangiz (Markazlar tarmog'i) ning umumiy ko'rinishi</p>
+<div class="page-header mb-4 animate__animated animate__fadeIn">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h1 class="page-title text-gradient">Super Admin Dashbort</h1>
+            <p class="page-subtitle">SaaS platformangiz va filiallar tarmog'ining to'liq tahlili</p>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{{ url_for('superadmin_branches') }}" class="btn-primary-custom">
-                <i class="fas fa-building me-2"></i>Filial Qo'shish
-            </a>
-            <a href="{{ url_for('superadmin_add_admin') }}" class="btn-primary-custom">
-                <i class="fas fa-user-shield me-2"></i>Admin Qo'shish
-            </a>
+        <div class="col-md-4 text-md-end">
+            <div class="time-display card bg-glass border-0">
+                <div class="card-body py-2 px-3">
+                    <span class="text-muted small">Tizim vaqti:</span>
+                    <span class="h5 mb-0 ms-2 text-primary fw-bold" id="live-clock">{{ current_time.strftime('%H:%M:%S') }}</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="row g-4 mb-4">
-    <div class="col-xl-2 col-lg-4 col-md-6">
-        <div class="stats-card">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <h3 class="mb-1">{{ total_students }}</h3>
-                    <p class="mb-0">O'quvchilar</p>
+<!-- Stats Cards Section -->
+<div class="row g-4 mb-5">
+    <div class="col-xl-4 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+        <div class="stats-card-premium bg-gradient-blue">
+            <div class="stats-content">
+                <div class="stats-info">
+                    <span class="stats-label text-white-50">Jami O'quvchilar</span>
+                    <h2 class="stats-value text-white">{{ total_students }}</h2>
+                    <div class="stats-trend text-white-50 small">
+                        <i class="fas fa-chart-line me-1"></i> Barcha filiallar bo'yicha
+                    </div>
                 </div>
-                <div class="stats-icon">
-                    <i class="fas fa-user-graduate"></i>
+                <div class="stats-visual">
+                    <div class="icon-shape bg-white-20 text-white">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="stats-progress-container mt-3">
+                <div class="progress bg-white-10" style="height: 4px;">
+                    <div class="progress-bar bg-white" style="width: 100%"></div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <div class="col-xl-2 col-lg-4 col-md-6">
-        <div class="stats-card">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <h3 class="mb-1">{{ total_teachers }}</h3>
-                    <p class="mb-0">O'qituvchilar</p>
+
+    <div class="col-xl-4 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+        <div class="stats-card-premium bg-gradient-emerald">
+            <div class="stats-content">
+                <div class="stats-info">
+                    <span class="stats-label text-white-50">Filiallar Soni</span>
+                    <h2 class="stats-value text-white">{{ branches|length }}</h2>
+                    <div class="stats-trend text-white-50 small">
+                        <i class="fas fa-building me-1"></i> Markazlar tarmog'i
+                    </div>
                 </div>
-                <div class="stats-icon">
-                    <i class="fas fa-user-tie"></i>
+                <div class="stats-visual">
+                    <div class="icon-shape bg-white-20 text-white">
+                        <i class="fas fa-city"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="stats-progress-container mt-3">
+                <div class="progress bg-white-10" style="height: 4px;">
+                    <div class="progress-bar bg-white" style="width: 100%"></div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <div class="col-xl-2 col-lg-4 col-md-6">
-        <div class="stats-card">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <h3 class="mb-1">{{ total_courses }}</h3>
-                    <p class="mb-0">Kurslar</p>
+
+    <div class="col-xl-4 col-md-6 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+        <div class="stats-card-premium bg-gradient-purple">
+            <div class="stats-content">
+                <div class="stats-info">
+                    <span class="stats-label text-white-50">Jami Kurslar</span>
+                    <h2 class="stats-value text-white">{{ total_courses }}</h2>
+                    <div class="stats-trend text-white-50 small">
+                        <i class="fas fa-book me-1"></i> O'quv dasturlari
+                    </div>
                 </div>
-                <div class="stats-icon">
-                    <i class="fas fa-graduation-cap"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-xl-2 col-lg-4 col-md-6">
-        <div class="stats-card">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <h3 class="mb-1">{{ total_groups }}</h3>
-                    <p class="mb-0">Guruhlar</p>
-                </div>
-                <div class="stats-icon">
-                    <i class="fas fa-users"></i>
+                <div class="stats-visual">
+                    <div class="icon-shape bg-white-20 text-white">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    <div class="col-xl-2 col-lg-4 col-md-6">
-        <div class="stats-card">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <h3 class="mb-1">{{ total_tests }}</h3>
-                    <p class="mb-0">Testlar</p>
-                </div>
-                <div class="stats-icon">
-                    <i class="fas fa-clipboard-list"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-xl-2 col-lg-4 col-md-6">
-        <div class="stats-card">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <h3 class="mb-1">{{ current_time.strftime('%H:%M') }}</h3>
-                    <p class="mb-0">Joriy Vaqt</p>
-                </div>
-                <div class="stats-icon">
-                    <i class="fas fa-clock"></i>
+            <div class="stats-progress-container mt-3">
+                <div class="progress bg-white-10" style="height: 4px;">
+                    <div class="progress-bar bg-white" style="width: 100%"></div>
                 </div>
             </div>
         </div>
@@ -107,106 +96,309 @@
 </div>
 
 <div class="row g-4">
+    <!-- Quick Actions Sidebar -->
     <div class="col-lg-4">
-        <div class="content-card">
-            <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">Tezkor Amallar</h5>
-            <div class="d-grid gap-2">
-                <a href="{{ url_for('superadmin_branches') }}" class="btn-primary-custom">
-                    <i class="fas fa-building me-2"></i>Yangi Filial
-                </a>
-                <a href="{{ url_for('superadmin_admins') }}" class="btn-primary-custom">
-                    <i class="fas fa-user-shield me-2"></i>Admin Tayinlash
-                </a>
-                <a href="{{ url_for('superadmin_settings') }}" class="btn-primary-custom">
-                    <i class="fas fa-cog me-2"></i>Tizim Sozlamalari
-                </a>
+        <div class="card bg-glass border-0 shadow-lg animate__animated animate__fadeInLeft">
+            <div class="card-header bg-transparent border-bottom border-white-10 py-3">
+                <h5 class="mb-0 text-white font-weight-bold">Tezkor Amallar</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="d-grid gap-3">
+                    <a href="{{ url_for('superadmin_branches') }}" class="action-btn-modern">
+                        <div class="action-icon bg-primary-soft text-primary">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <div class="action-text">
+                            <span class="fw-bold">Yangi Filial Qo'shish</span>
+                            <small class="text-muted d-block">Yangi markazni ro'yxatdan o'tkazish</small>
+                        </div>
+                    </a>
+                    
+                    <a href="{{ url_for('superadmin_add_admin') }}" class="action-btn-modern">
+                        <div class="action-icon bg-success-soft text-success">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div class="action-text">
+                            <span class="fw-bold">Admin Tayinlash</span>
+                            <small class="text-muted d-block">Filial boshqaruvchisini qo'shish</small>
+                        </div>
+                    </a>
+
+                    <a href="{{ url_for('superadmin_admins') }}" class="action-btn-modern">
+                        <div class="action-icon bg-info-soft text-info">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                        <div class="action-text">
+                            <span class="fw-bold">Adminlar Ro'yxati</span>
+                            <small class="text-muted d-block">Barcha adminlarni boshqarish</small>
+                        </div>
+                    </a>
+
+                    <a href="{{ url_for('superadmin_settings') }}" class="action-btn-modern">
+                        <div class="action-icon bg-warning-soft text-warning">
+                            <i class="fas fa-sliders-h"></i>
+                        </div>
+                        <div class="action-text">
+                            <span class="fw-bold">Global Sozlamalar</span>
+                            <small class="text-muted d-block">Tizim va AI parametrlarini sozlash</small>
+                        </div>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Main Table Section -->
     <div class="col-lg-8">
-        <div class="content-card">
-            <h5 class="mb-4" style="color: var(--text-primary); font-weight: 600;">O'quv Markazlari (Filiallar)</h5>
-            <div class="table-responsive">
-                <table class="table table-dark table-hover">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nomi</th>
-                            <th>Admin</th>
-                            <th>O'quvchilar</th>
-                            <th>O'qituvchilar</th>
-                            <th>Yaratilgan sana</th>
-                            <th class="text-end">Amallar</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for branch in branches %}
-                        <tr>
-                            <td>{{ branch.id }}</td>
-                            <td><strong style="color: var(--accent);">{{ branch.name }}</strong></td>
-                            <td>
-                                {% set admin = branch.users|selectattr('role', 'equalto', 'admin')|list %}
-                                {% if admin %}
-                                <span class="badge bg-success">{{ admin[0].full_name }}</span>
-                                {% else %}
-                                <span class="badge bg-secondary">Tayinlanmagan</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ branch.users|selectattr('role', 'equalto', 'student')|list|length }}</td>
-                            <td>{{ branch.users|selectattr('role', 'equalto', 'teacher')|list|length }}</td>
-                            <td>{{ branch.created_at.strftime('%Y-%m-%d') }}</td>
-                            <td class="text-end">
-                                <a href="{{ url_for('superadmin_edit_branch', branch_id=branch.id) }}" class="btn btn-sm btn-outline-warning" title="Tahrirlash">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        <div class="card bg-glass border-0 shadow-lg animate__animated animate__fadeInRight">
+            <div class="card-header bg-transparent border-bottom border-white-10 d-flex justify-content-between align-items-center py-3">
+                <h5 class="mb-0 text-white font-weight-bold">Filiallar Holati</h5>
+                <span class="badge bg-primary-soft text-primary rounded-pill">{{ branches|length }} filial faol</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-modern mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Filial Nomi</th>
+                                <th>Admin</th>
+                                <th class="text-center">Resurslar</th>
+                                <th>Sana</th>
+                                <th class="text-end pe-4">Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for branch in branches %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm bg-primary-soft text-primary me-3">
+                                            {{ branch.name[0]|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-white">{{ branch.name }}</div>
+                                            <div class="text-muted small">ID: #{{ branch.id }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% set admin = branch.users|selectattr('role', 'equalto', 'admin')|list %}
+                                    {% if admin %}
+                                        <div class="d-flex align-items-center">
+                                            <div class="status-indicator bg-success me-2"></div>
+                                            <span class="text-light-50 small">{{ admin[0].full_name }}</span>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted italic small">Tayinlanmagan</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <span class="badge-custom bg-white-05" title="O'quvchilar">
+                                            <i class="fas fa-user-graduate me-1 text-primary"></i>
+                                            {{ branch.users|selectattr('role', 'equalto', 'student')|list|length }}
+                                        </span>
+                                        <span class="badge-custom bg-white-05" title="O'qituvchilar">
+                                            <i class="fas fa-user-tie me-1 text-success"></i>
+                                            {{ branch.users|selectattr('role', 'equalto', 'teacher')|list|length }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="text-muted small">{{ branch.created_at.strftime('%Y-%m-%d') }}</span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('superadmin_edit_branch', branch_id=branch.id) }}" class="btn-action-sm btn-action-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-.activity-item {
+/* Stats Cards Premium */
+.stats-card-premium {
+    padding: 1.5rem;
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.stats-card-premium:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+}
+
+.stats-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stats-label {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+.stats-value {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin: 0.5rem 0;
+}
+
+.icon-shape {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+}
+
+/* Gradients */
+.bg-gradient-blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.bg-gradient-emerald { background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%); }
+.bg-gradient-purple { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.bg-white-20 { background: rgba(255,255,255,0.2); }
+.bg-white-10 { background: rgba(255,255,255,0.1); }
+.bg-white-05 { background: rgba(255,255,255,0.05); }
+
+/* Modern Action Buttons */
+.action-btn-modern {
+    display: flex;
+    align-items: center;
     padding: 1rem;
-    background: var(--bg-secondary);
-    border-radius: 12px;
-    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.03);
+    border-radius: 15px;
+    border: 1px solid rgba(255,255,255,0.05);
+    text-decoration: none !important;
     transition: all 0.3s ease;
 }
 
-.activity-item:hover {
-    transform: translateX(4px);
+.action-btn-modern:hover {
+    background: rgba(255,255,255,0.08);
+    transform: translateX(8px);
     border-color: var(--accent);
 }
 
-.activity-icon {
-    width: 40px;
-    height: 40px;
-    background: var(--bg-card);
+.action-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-right: 1rem;
+}
+
+/* Table Modern Styling */
+.table-modern {
+    color: var(--text-secondary);
+}
+
+.table-modern thead th {
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding: 1rem;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+}
+
+.table-modern tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table-modern tbody tr:hover {
+    background: rgba(255,255,255,0.03) !important;
+}
+
+.table-modern td {
+    padding: 1.2rem 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.avatar-sm {
+    width: 38px;
+    height: 38px;
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-weight: 700;
 }
 
-.progress {
-    border-radius: 2px;
-    overflow: hidden;
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
 }
 
-.progress-bar {
-    transition: width 0.3s ease;
+.badge-custom {
+    padding: 0.4rem 0.8rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
 }
 
-.badge {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
+.btn-action-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-action-warning {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+.btn-action-warning:hover {
+    background: #ffc107;
+    color: #000;
+}
+
+.bg-glass {
+    background: rgba(10, 25, 41, 0.7) !important;
+    backdrop-filter: blur(20px);
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, #fff 0%, #00f2fe 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 </style>
+
+<script>
+function updateClock() {
+    const now = new Date();
+    const clock = document.getElementById('live-clock');
+    if (clock) {
+        clock.textContent = now.toLocaleTimeString();
+    }
+}
+setInterval(updateClock, 1000);
+</script>
 {% endblock %}
