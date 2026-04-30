@@ -2192,7 +2192,7 @@ def get_system_context(user):
         teacher = Teacher.query.filter_by(user_id=user.id).first()
         if teacher:
             course = Course.query.get(teacher.course_id)
-            context_parts.append(f"=== O'QITUVCHI: {user.full_name} | Kurs: {course.name if course else 'Noma\'lum'} ===")
+            context_parts.append(f"=== O'QITUVCHI: {user.full_name} | Kurs: {course.name if course else 'Nomalum'} ===")
 
             groups = Group.query.filter_by(teacher_id=teacher.id).all()
             context_parts.append(f"Guruhlar: {len(groups)}")
